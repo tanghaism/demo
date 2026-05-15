@@ -50,10 +50,31 @@ const tabScreens: Record<Tab, Screen> = {
   settings: "settings",
 }
 
+function PreviewToggleButton({
+  darkPreview,
+  onToggle,
+}: {
+  darkPreview: boolean
+  onToggle: () => void
+}) {
+  return (
+    <button
+      className="px-4 py-2 rounded-xl font-semibold text-sm shadow-lg ios-tap"
+      style={{
+        background: darkPreview ? "rgba(255,255,255,0.92)" : "#101828",
+        color: darkPreview ? "#101828" : "white",
+      }}
+      onClick={onToggle}
+    >
+      {darkPreview ? "浅色预览" : "暗色预览"}
+    </button>
+  )
+}
+
 function ShowcaseShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-xs font-semibold text-[#667085] uppercase tracking-wider">{title}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>{title}</span>
       <IPhoneShell>
         <div className="relative h-full">{children}</div>
       </IPhoneShell>
@@ -61,10 +82,14 @@ function ShowcaseShell({ title, children }: { title: string; children: React.Rea
   )
 }
 
-function Showcase() {
+function Showcase({ darkPreview }: { darkPreview: boolean }) {
   return (
-    <div className="min-h-screen bg-[#E0E6F0] py-8 px-4">
-      <h1 className="text-center text-2xl font-bold text-[#101828] mb-8">
+    <div
+      className={darkPreview ? "dark" : undefined}
+      style={{ background: "var(--preview-host-bg)" }}
+    >
+      <div className="min-h-screen py-8 px-4">
+      <h1 className="text-center text-2xl font-bold mb-8" style={{ color: "var(--foreground)" }}>
         凭保 Proofly · 全部页面
       </h1>
       <div className="flex flex-wrap gap-8 justify-center">
@@ -86,6 +111,7 @@ function Showcase() {
         </ShowcaseShell>
         <ShowcaseShell title="4. 记录列表">
           <RecordsList onSelectRecord={noop} onAddRecord={noop} onNavigate={noopNav} />
+          <TabBar activeTab="records" onTabChange={noop} onAddRecord={noop} onAddObject={noop} />
         </ShowcaseShell>
         <ShowcaseShell title="5. 记录详情">
           <RecordDetail onBack={noop} onNavigate={noopNav} />
@@ -98,6 +124,7 @@ function Showcase() {
         </ShowcaseShell>
         <ShowcaseShell title="8. 提醒">
           <RemindersScreen onNavigate={noopNav} />
+          <TabBar activeTab="reminders" onTabChange={noop} onAddRecord={noop} onAddObject={noop} />
         </ShowcaseShell>
         <ShowcaseShell title="9. 导出资料包">
           <ExportScreen onBack={noop} onNavigate={noopNav} mode="object" />
@@ -113,10 +140,12 @@ function Showcase() {
         </ShowcaseShell>
         <ShowcaseShell title="13. 设置">
           <SettingsScreen onNavigate={noopNav} />
+          <TabBar activeTab="settings" onTabChange={noop} onAddRecord={noop} onAddObject={noop} />
         </ShowcaseShell>
         <ShowcaseShell title="14. Pro 升级">
           <ProUpgrade onClose={noop} />
         </ShowcaseShell>
+      </div>
       </div>
     </div>
   )
@@ -124,6 +153,7 @@ function Showcase() {
 
 export default function ProoflyApp() {
   const [showcase, setShowcase] = useState(true)
+  const [darkPreview, setDarkPreview] = useState(false)
   const [currentScreen, setCurrentScreen] = useState<Screen>("no-space-empty")
   const [activeTab, setActiveTab] = useState<Tab>("home")
   const [currentSpace, setCurrentSpace] = useState("家庭资料箱")
@@ -248,6 +278,7 @@ export default function ProoflyApp() {
           <ExportScreen
             onBack={() => setCurrentScreen(exportFrom)}
             onNavigate={handleNavigate}
+            mode={exportFrom === "record-detail" ? "record" : exportFrom === "settings" ? "space" : "object"}
           />
         )
       case "templates":
@@ -274,35 +305,48 @@ export default function ProoflyApp() {
   if (showcase) {
     return (
       <div className="relative">
-        <button
-          className="fixed top-4 right-4 z-50 px-4 py-2 rounded-xl font-semibold text-sm shadow-lg ios-tap"
-          style={{ background: "#101828", color: "white" }}
-          onClick={() => setShowcase(false)}
-        >
-          切换到交互模式
-        </button>
-        <Showcase />
+        <div className="fixed top-4 right-4 z-50 flex gap-3">
+          <PreviewToggleButton darkPreview={darkPreview} onToggle={() => setDarkPreview((value) => !value)} />
+          <button
+            className="px-4 py-2 rounded-xl font-semibold text-sm shadow-lg ios-tap"
+            style={{ background: "#101828", color: "white" }}
+            onClick={() => setShowcase(false)}
+          >
+            切换到交互模式
+          </button>
+        </div>
+        <Showcase darkPreview={darkPreview} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#E0E6F0] flex items-start justify-center py-8 px-4 relative">
-      <button
-        className="fixed top-4 right-4 z-50 px-4 py-2 rounded-xl font-semibold text-sm shadow-lg ios-tap"
-        style={{ background: "#101828", color: "white" }}
-        onClick={() => setShowcase(true)}
-      >
-        查看全部页面
-      </button>
-      <IPhoneShell>
-        <div className="relative h-full">
-          {renderScreen()}
-          {showTabBar && (
-            <TabBar activeTab={activeTab} onTabChange={handleTabChange} onAddRecord={() => { setCurrentScreen("add-record"); setActiveTab("add") }} onAddObject={() => { setCurrentScreen("add-object") }} />
-          )}
+    <div
+      className={darkPreview ? "dark" : undefined}
+      style={{ background: "var(--preview-host-bg)" }}
+    >
+      <div className="min-h-screen flex items-start justify-center py-8 px-4 relative">
+        <div className="fixed top-4 right-4 z-50 flex gap-3">
+          <PreviewToggleButton darkPreview={darkPreview} onToggle={() => setDarkPreview((value) => !value)} />
+          <button
+            className="px-4 py-2 rounded-xl font-semibold text-sm shadow-lg ios-tap"
+            style={{ background: "#101828", color: "white" }}
+            onClick={() => setShowcase(true)}
+          >
+            查看全部页面
+          </button>
         </div>
-      </IPhoneShell>
+        <IPhoneShell>
+          <div className="relative h-full">
+            <div key={currentScreen} className="relative h-full premium-enter">
+              {renderScreen()}
+            </div>
+            {showTabBar && (
+              <TabBar activeTab={activeTab} onTabChange={handleTabChange} onAddRecord={() => { setCurrentScreen("add-record"); setActiveTab("add") }} onAddObject={() => { setCurrentScreen("add-object") }} />
+            )}
+          </div>
+        </IPhoneShell>
+      </div>
     </div>
   )
 }

@@ -13,7 +13,7 @@
   --warning: #FF9500;
 
   /* Semantic Tokens */
-  --background: #F6F8FF;
+  --background: #F5F7FB;
   --foreground: #101828;
   --card: #FFFFFF;
   --card-foreground: #101828;
@@ -46,6 +46,72 @@
   --glass: rgba(255,255,255,0.72);
   --glass-border: rgba(255,255,255,0.5);
 
+  /* Premium visual system */
+  --premium-blue: #4C6FFF;
+  --premium-blue-start: #5B7CFF;
+  --premium-indigo-end: #7B61FF;
+  --premium-mint: #31C48D;
+  --premium-warning: #FFB648;
+  --premium-danger: #FF5A6B;
+  --premium-bg: #F5F7FB;
+  --premium-glass: rgba(255,255,255,0.7);
+  --premium-glass-strong: rgba(255,255,255,0.86);
+  --premium-border: rgba(255,255,255,0.62);
+  --premium-shadow: 0 18px 42px rgba(76,111,255,0.13), 0 8px 20px rgba(16,24,40,0.08);
+  --premium-surface: rgba(255,255,255,0.92);
+  --premium-surface-soft: rgba(246,248,255,0.92);
+  --premium-surface-selected: #EEF4FF;
+  --premium-row-border: rgba(232,236,244,0.86);
+  --premium-overlay: rgba(16,24,40,0.30);
+  --premium-tab-surface: rgba(255,255,255,0.88);
+  --premium-tab-shadow: 0 18px 42px rgba(76,111,255,0.16), 0 8px 20px rgba(16,24,40,0.12);
+  --premium-action-surface: rgba(255,255,255,0.86);
+  --premium-action-border: rgba(255,255,255,0.66);
+  --premium-action-shadow: 0 16px 36px rgba(16,24,40,0.16);
+  --premium-text: #101828;
+  --premium-text-muted: #667085;
+  --premium-text-subtle: #98A2B3;
+  --premium-icon-blue-bg: #EEF4FF;
+  --premium-icon-mint-bg: #EAFBF5;
+  --premium-icon-indigo-bg: #F0EBFF;
+  --premium-icon-amber-bg: #FFF6E6;
+  --premium-icon-red-bg: #FFF0F2;
+  --premium-glow-blue: rgba(91,124,255,0.16);
+  --premium-glow-indigo: rgba(123,97,255,0.13);
+  --premium-glow-mint: rgba(49,196,141,0.10);
+  --premium-callout-bg: #FFF8EC;
+  --premium-callout-text: #8A5F00;
+  --premium-control-surface: rgba(118,118,128,0.10);
+  --premium-control-surface-strong: rgba(255,255,255,0.76);
+  --premium-control-border: rgba(255,255,255,0.70);
+  --premium-control-shadow: 0 8px 18px rgba(16,24,40,0.04);
+  --premium-segment-active: #FFFFFF;
+  --premium-chevron: #C8D0E8;
+  --premium-icon-neutral-bg: #F6F8FF;
+  --premium-icon-neutral-fg: #C8D0E8;
+  --premium-chip-blue-bg: #EEF4FF;
+  --premium-warning-bg: rgba(255,248,236,0.86);
+  --premium-warning-border: rgba(255,228,181,0.80);
+  --premium-warning-text: #8A5F00;
+  --premium-success-bg: #EDFAF7;
+  --premium-success-border: #D4F5EE;
+  --premium-success-text: #0D9B81;
+  --premium-danger-bg: #FFF0F0;
+  --premium-danger-border: #FFD0D0;
+  --premium-danger-text: #CC2200;
+  --premium-toggle-off: #E5E5EA;
+  --premium-toggle-thumb: #FFFFFF;
+
+  /* Motion system */
+  --motion-fast: 160ms;
+  --motion-standard: 240ms;
+  --motion-slow: 320ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --preview-host-bg: #E0E6F0;
+  --iphone-shell-bg: #F5F7FB;
+  --iphone-shell-shadow: 0 36px 90px rgba(16,24,40,0.22), 0 0 0 1px #DDE5F5, inset 0 0 0 1px rgba(255,255,255,0.7);
+  --iphone-status: #101828;
+
   --sidebar: #FFFFFF;
   --sidebar-foreground: #101828;
   --sidebar-primary: #2563FF;
@@ -54,6 +120,71 @@
   --sidebar-accent-foreground: #2563FF;
   --sidebar-border: #E8ECF4;
   --sidebar-ring: #2563FF;
+}
+
+.dark {
+  --background: #0E1320;
+  --foreground: #F8FAFC;
+  --card: #141A2A;
+  --card-foreground: #F8FAFC;
+  --popover: #141A2A;
+  --popover-foreground: #F8FAFC;
+  --muted: #1D2537;
+  --muted-foreground: #A3ADC2;
+  --border: rgba(255,255,255,0.10);
+  --input: #1D2537;
+  --premium-bg: #0E1320;
+  --premium-glass: rgba(20,26,42,0.72);
+  --premium-glass-strong: rgba(20,26,42,0.88);
+  --premium-border: rgba(255,255,255,0.10);
+  --premium-shadow: 0 18px 42px rgba(0,0,0,0.34), 0 8px 20px rgba(0,0,0,0.22);
+  --premium-surface: rgba(20,26,42,0.92);
+  --premium-surface-soft: rgba(29,37,55,0.92);
+  --premium-surface-selected: rgba(76,111,255,0.18);
+  --premium-row-border: rgba(255,255,255,0.10);
+  --premium-overlay: rgba(3,7,18,0.52);
+  --premium-tab-surface: rgba(20,26,42,0.90);
+  --premium-tab-shadow: 0 18px 42px rgba(0,0,0,0.34), 0 8px 20px rgba(0,0,0,0.22);
+  --premium-action-surface: rgba(29,37,55,0.92);
+  --premium-action-border: rgba(255,255,255,0.10);
+  --premium-action-shadow: 0 16px 36px rgba(0,0,0,0.30);
+  --premium-text: #F8FAFC;
+  --premium-text-muted: #A3ADC2;
+  --premium-text-subtle: #7D89A3;
+  --premium-icon-blue-bg: rgba(76,111,255,0.18);
+  --premium-icon-mint-bg: rgba(49,196,141,0.16);
+  --premium-icon-indigo-bg: rgba(123,97,255,0.18);
+  --premium-icon-amber-bg: rgba(255,182,72,0.16);
+  --premium-icon-red-bg: rgba(255,90,107,0.16);
+  --premium-glow-blue: rgba(91,124,255,0.20);
+  --premium-glow-indigo: rgba(123,97,255,0.16);
+  --premium-glow-mint: rgba(49,196,141,0.12);
+  --premium-callout-bg: rgba(255,182,72,0.13);
+  --premium-callout-text: #FFD18A;
+  --premium-control-surface: rgba(255,255,255,0.08);
+  --premium-control-surface-strong: rgba(29,37,55,0.78);
+  --premium-control-border: rgba(255,255,255,0.10);
+  --premium-control-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  --premium-segment-active: rgba(20,26,42,0.96);
+  --premium-chevron: #59657C;
+  --premium-icon-neutral-bg: rgba(255,255,255,0.08);
+  --premium-icon-neutral-fg: #7D89A3;
+  --premium-chip-blue-bg: rgba(76,111,255,0.18);
+  --premium-warning-bg: rgba(255,182,72,0.13);
+  --premium-warning-border: rgba(255,182,72,0.22);
+  --premium-warning-text: #FFD18A;
+  --premium-success-bg: rgba(49,196,141,0.14);
+  --premium-success-border: rgba(49,196,141,0.22);
+  --premium-success-text: #79E3BC;
+  --premium-danger-bg: rgba(255,90,107,0.14);
+  --premium-danger-border: rgba(255,90,107,0.26);
+  --premium-danger-text: #FF9CA7;
+  --premium-toggle-off: #30394C;
+  --premium-toggle-thumb: #F8FAFC;
+  --preview-host-bg: #070B14;
+  --iphone-shell-bg: #0E1320;
+  --iphone-shell-shadow: 0 36px 90px rgba(0,0,0,0.46), 0 0 0 1px rgba(255,255,255,0.10), inset 0 0 0 1px rgba(255,255,255,0.08);
+  --iphone-status: #F8FAFC;
 }
 
 @theme inline {
@@ -122,6 +253,141 @@
   .ios-tap:active {
     opacity: 0.5;
     transition: opacity 0.08s;
+  }
+
+  .premium-screen {
+    background:
+      radial-gradient(circle at 18% 10%, rgba(91,124,255,0.18), transparent 34%),
+      radial-gradient(circle at 88% 6%, rgba(123,97,255,0.14), transparent 30%),
+      radial-gradient(circle at 70% 92%, rgba(49,196,141,0.10), transparent 34%),
+      var(--premium-bg);
+  }
+
+  .premium-glass {
+    background: var(--premium-glass);
+    border: 1px solid var(--premium-border);
+    box-shadow: var(--premium-shadow);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .premium-press {
+    transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+  }
+
+  .premium-press:active {
+    transform: scale(0.975);
+    opacity: 0.88;
+  }
+
+  .premium-hero-gradient {
+    background:
+      radial-gradient(circle at 82% 12%, rgba(255,255,255,0.22), transparent 28%),
+      linear-gradient(135deg, var(--premium-blue-start) 0%, var(--premium-indigo-end) 100%);
+  }
+
+  /* Dark preview compatibility for legacy Proofly screens still using static utility colors. */
+  .dark .bg-white,
+  .dark .ios-card {
+    background: var(--premium-surface) !important;
+  }
+
+  .dark .bg-\[\#F6F8FF\],
+  .dark .bg-\[\#EEF4FF\] {
+    background: var(--premium-surface-soft) !important;
+  }
+
+  .dark .text-\[\#101828\] {
+    color: var(--premium-text) !important;
+  }
+
+  .dark .text-\[\#667085\] {
+    color: var(--premium-text-muted) !important;
+  }
+
+  .dark .text-\[\#98A2B3\],
+  .dark .text-\[\#C8D0E8\] {
+    color: var(--premium-text-subtle) !important;
+  }
+
+  .dark .border-\[\#E8ECF4\],
+  .dark .border-\[\#F6F8FF\],
+  .dark .border-\[\#D8E0F8\] {
+    border-color: var(--premium-row-border) !important;
+  }
+
+  .premium-enter {
+    animation: premium-enter var(--motion-standard) var(--motion-ease) both;
+  }
+
+  .premium-card-enter {
+    animation: premium-card-enter var(--motion-slow) var(--motion-ease) both;
+  }
+
+  .premium-sheet-overlay {
+    animation: premium-fade-in var(--motion-fast) var(--motion-ease) both;
+  }
+
+  .premium-sheet-panel {
+    animation: premium-sheet-up var(--motion-standard) var(--motion-ease) both;
+    will-change: transform, opacity;
+  }
+
+  @keyframes premium-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+      filter: blur(3px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+
+  @keyframes premium-card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes premium-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes premium-sheet-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .premium-enter,
+    .premium-card-enter,
+    .premium-sheet-overlay,
+    .premium-sheet-panel {
+      animation: none !important;
+    }
+
+    .premium-press {
+      transition: none !important;
+    }
+
+    .premium-press:active {
+      transform: none;
+    }
   }
 
   /* iOS section header label — UITableView inset grouped section header */

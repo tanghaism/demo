@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { X, Check, Star, CheckCircle2 } from "lucide-react"
+import { AmbientBackground } from "@/components/proofly/ambient-background"
+import { PremiumCard } from "@/components/proofly/premium-card"
 
 const perks = [
   "不限资料箱数量",
@@ -30,96 +32,67 @@ export function ProUpgrade({ onClose }: ProUpgradeProps) {
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#FFFFFF", paddingTop: 54 }}>
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ paddingTop: 54 }}>
+      <AmbientBackground />
 
       {/* Close button — top right, iOS system X button */}
-      <div className="flex items-center justify-end px-4 pt-3">
+      <div className="relative z-10 flex items-center justify-end px-4 pt-3">
         <button
-          className="ios-tap flex items-center justify-center"
-          style={{ width: 30, height: 30, borderRadius: 15, background: "#E5E5EA" }}
+          className="ios-tap premium-press flex items-center justify-center"
+          style={{ width: 32, height: 32, borderRadius: 16, background: "var(--premium-control-surface-strong)", border: "1px solid var(--premium-control-border)" }}
           onClick={onClose}
           aria-label="关闭"
         >
-          <X size={15} strokeWidth={2.5} style={{ color: "#6C6C70" }} />
+          <X size={15} strokeWidth={2.5} style={{ color: "var(--premium-text-muted)" }} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar pb-2">
+      <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar pb-2">
 
-        {/* App icon + title — iOS App Store style */}
-        <div className="flex flex-col items-center px-6 pt-3 pb-6">
-          <div
-            className="flex items-center justify-center mb-4"
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 20,
-              background: "linear-gradient(145deg, #007AFF 0%, #5856D6 100%)",
-              boxShadow: "0 8px 24px rgba(0,122,255,0.28)",
-            }}
-          >
-            <Star size={36} strokeWidth={1.5} style={{ color: "#FFFFFF" }} />
-          </div>
-          <h2
-            className="text-center"
-            style={{ fontSize: 22, fontWeight: 700, color: "#000000", letterSpacing: -0.4 }}
-          >
-            解锁完整资料备忘录
-          </h2>
-          <p
-            className="text-center"
-            style={{ fontSize: 15, color: "#8E8E93", marginTop: 6, lineHeight: 1.4 }}
-          >
-            年付订阅，资料始终可查看
-          </p>
-        </div>
-
-        {/* Price — iOS IAP style: large number + period */}
-        <div className="flex items-center justify-center mb-2 px-6">
-          <div className="text-center">
-            <div className="flex items-baseline justify-center gap-1">
-              <span style={{ fontSize: 42, fontWeight: 700, color: "#000000", letterSpacing: -1 }}>¥18</span>
-              <span style={{ fontSize: 17, color: "#8E8E93" }}>/年</span>
+        {/* Pricing Hero */}
+        <div className="px-4 pt-2 pb-4">
+          <PremiumCard className="relative px-5 py-4 text-center" style={{ background: "transparent", boxShadow: "0 18px 38px rgba(76,111,255,0.20)" }}>
+            <div className="absolute inset-0 premium-hero-gradient" />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% -8%, rgba(255,255,255,0.24), transparent 44%)" }} />
+            <div className="relative">
+              <div className="mx-auto flex items-center justify-center mb-3" style={{ width: 56, height: 56, borderRadius: 18, background: "rgba(255,255,255,0.16)" }}>
+                <Star size={26} strokeWidth={1.7} style={{ color: "#FFFFFF" }} />
+              </div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.78)" }}>Proofly Pro</p>
+              <h2 className="mt-1 text-white font-bold" style={{ fontSize: 21, letterSpacing: -0.4, lineHeight: 1.18 }}>
+                守护你的本地重要资料
+              </h2>
+              <div className="flex items-baseline justify-center gap-1 mt-3">
+                <span style={{ fontSize: 40, fontWeight: 800, color: "#FFFFFF", letterSpacing: -1 }}>¥18</span>
+                <span style={{ fontSize: 17, color: "rgba(255,255,255,0.74)" }}>/年</span>
+              </div>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.68)", marginTop: 1 }}>约 ¥1.5 / 月 · 到期不删除已有资料</p>
             </div>
-            <p style={{ fontSize: 13, color: "#8E8E93", marginTop: 2 }}>约 ¥1.5 / 月 · $2.99/year (overseas)</p>
-          </div>
-        </div>
-
-        {/* Expiry grace note */}
-        <div className="px-6 mb-5">
-          <div className="flex items-center gap-2 justify-center">
-            <div
-              className="flex items-center justify-center"
-              style={{ width: 16, height: 16, borderRadius: 8, background: "#34C759" }}
-            >
-              <Check size={9} strokeWidth={3} style={{ color: "#FFFFFF" }} />
-            </div>
-            <p style={{ fontSize: 13, color: "#8E8E93" }}>
-              订阅到期不删除已有资料，回到免费版限制
-            </p>
-          </div>
+          </PremiumCard>
         </div>
 
         {/* Perks — iOS grouped list with hairlines, no outer card border */}
-        <div style={{ borderTop: "0.5px solid rgba(60,60,67,0.12)", borderBottom: "0.5px solid rgba(60,60,67,0.12)" }}>
-          {perks.map((perk, i) => (
-            <div
-              key={perk}
-              className="flex items-center gap-3 px-4"
-              style={{
-                height: 44,
-                borderBottom: i < perks.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
-              }}
-            >
+        <div className="px-4">
+          <PremiumCard className="rounded-[18px]">
+            {perks.map((perk, i) => (
               <div
-                className="flex items-center justify-center flex-shrink-0"
-                style={{ width: 22, height: 22, borderRadius: 11, background: "#34C759" }}
+                key={perk}
+                className="flex items-center gap-3 px-4"
+                style={{
+                  height: 44,
+                  borderBottom: i < perks.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
+                }}
               >
-                <Check size={12} strokeWidth={3} style={{ color: "#FFFFFF" }} />
+                <div
+                  className="flex items-center justify-center flex-shrink-0"
+                  style={{ width: 22, height: 22, borderRadius: 11, background: "#31C48D" }}
+                >
+                  <Check size={12} strokeWidth={3} style={{ color: "#FFFFFF" }} />
+                </div>
+                <span style={{ fontSize: 15, color: "var(--premium-text)" }}>{perk}</span>
               </div>
-              <span style={{ fontSize: 15, color: "#000000" }}>{perk}</span>
-            </div>
-          ))}
+            ))}
+          </PremiumCard>
         </div>
 
         {/* Trust badges */}
@@ -128,24 +101,21 @@ export function ProUpgrade({ onClose }: ProUpgradeProps) {
             <div key={badge} className="flex items-center gap-1.5">
               <div
                 className="flex items-center justify-center"
-                style={{ width: 16, height: 16, borderRadius: 8, background: "#EDFAF7" }}
-              >
+              style={{ width: 16, height: 16, borderRadius: 8, background: "var(--premium-success-bg)" }}
+            >
                 <Check size={9} strokeWidth={3} style={{ color: "#34C759" }} />
               </div>
-              <span style={{ fontSize: 13, color: "#8E8E93" }}>{badge}</span>
+              <span style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>{badge}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* CTA — iOS App Store subscribe button */}
-      <div
-        className="px-5 pb-8 pt-3"
-        style={{ borderTop: "0.5px solid rgba(60,60,67,0.12)" }}
-      >
+      <div className="relative z-10 px-5 pb-8 pt-3" style={{ borderTop: "0.5px solid var(--premium-row-border)", background: "var(--premium-surface)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
         <button
-          className="ios-tap w-full flex items-center justify-center rounded-xl"
-          style={{ height: 54, background: "#007AFF" }}
+          className="ios-tap premium-press w-full flex items-center justify-center rounded-2xl"
+          style={{ height: 54, background: "linear-gradient(135deg, #5B7CFF 0%, #7B61FF 100%)", boxShadow: "0 14px 28px rgba(76,111,255,0.24)" }}
           onClick={() => showToast("subscribed")}
           aria-label="开通 Pro"
         >
@@ -157,7 +127,7 @@ export function ProUpgrade({ onClose }: ProUpgradeProps) {
           onClick={onClose}
           aria-label="继续使用免费版"
         >
-          <span style={{ fontSize: 15, color: "#8E8E93" }}>继续使用免费版</span>
+          <span style={{ fontSize: 15, color: "var(--premium-text-subtle)" }}>继续使用免费版</span>
         </button>
 
         <button
@@ -165,7 +135,7 @@ export function ProUpgrade({ onClose }: ProUpgradeProps) {
           onClick={() => showToast("no-purchase")}
           aria-label="恢复购买"
         >
-          <span style={{ fontSize: 13, color: "#007AFF" }}>恢复购买</span>
+          <span style={{ fontSize: 13, color: "#4C6FFF" }}>恢复购买</span>
         </button>
       </div>
 

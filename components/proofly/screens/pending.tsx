@@ -5,6 +5,8 @@ import {
   ChevronLeft, Tag, Link2, AlignLeft, CheckSquare,
   CheckCircle2, ChevronRight, X,
 } from "lucide-react"
+import { AmbientBackground } from "@/components/proofly/ambient-background"
+import { PremiumCard } from "@/components/proofly/premium-card"
 
 interface PendingScreenProps {
   onBack: () => void
@@ -96,17 +98,18 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
     "手动标记": "#98A2B3",
   }
   const reasonBg: Record<PendingReason, string> = {
-    "缺少标题": "#EEF4FF",
-    "缺少类型": "#F0EBFF",
-    "缺少标签": "#EDFAF7",
-    "缺少关联对象": "#FFF3E0",
-    "手动标记": "#F6F8FF",
+    "缺少标题": "rgba(37,99,255,0.12)",
+    "缺少类型": "rgba(124,92,255,0.13)",
+    "缺少标签": "rgba(20,200,168,0.12)",
+    "缺少关联对象": "rgba(255,149,0,0.14)",
+    "手动标记": "var(--premium-icon-neutral-bg)",
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#F6F8FF]" style={{ paddingTop: 54 }}>
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ paddingTop: 54 }}>
+      <AmbientBackground />
       {/* Nav */}
-      <div className="relative flex items-center px-4 pt-2 pb-2.5" style={{ borderBottom: "0.5px solid #E8ECF4" }}>
+      <div className="relative z-10 flex items-center px-4 pt-2 pb-2.5">
         <button
           className="ios-tap flex items-center gap-1"
           style={{ minHeight: 44 }}
@@ -117,36 +120,36 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
           <span className="text-[#2563FF]" style={{ fontSize: 16 }}>记录</span>
         </button>
         <h1
-          className="font-semibold text-[#101828] absolute left-1/2 -translate-x-1/2"
-          style={{ fontSize: 17 }}
+          className="font-semibold absolute left-1/2 -translate-x-1/2"
+          style={{ fontSize: 17, color: "var(--premium-text)" }}
         >
           待整理
         </h1>
       </div>
 
       {/* Hint */}
-      <div className="px-4 pt-3 pb-1">
-        <p className="text-[#98A2B3] leading-snug" style={{ fontSize: 13 }}>
+      <div className="relative z-10 px-4 pt-3 pb-1">
+        <p className="leading-snug" style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>
           这些记录可以晚点补充信息，不着急。
         </p>
       </div>
 
       {/* Count */}
-      <div className="px-4 py-2">
-        <p className="text-[#98A2B3]" style={{ fontSize: 13 }}>{visible.length} 条待整理</p>
+      <div className="relative z-10 px-4 py-2">
+        <p style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>{visible.length} 条待整理</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-4 pb-28">
+      <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-4 pb-28">
         {visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center pt-16 gap-3">
-            <div className="w-16 h-16 rounded-2xl bg-[#EDFAF7] flex items-center justify-center">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "var(--premium-success-bg)" }}>
               <CheckCircle2 size={32} className="text-[#14C8A8]" strokeWidth={1.5} />
             </div>
-            <p className="font-semibold text-[#101828]" style={{ fontSize: 17 }}>全部整理完毕</p>
-            <p className="text-[#98A2B3] text-center" style={{ fontSize: 14 }}>没有待整理的记录了</p>
+            <p className="font-semibold" style={{ fontSize: 17, color: "var(--premium-text)" }}>全部整理完毕</p>
+            <p className="text-center" style={{ fontSize: 14, color: "var(--premium-text-subtle)" }}>没有待整理的记录了</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-0 bg-white rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+          <PremiumCard className="flex flex-col gap-0 rounded-[18px]">
             {visible.map((item, idx) => {
               const isOpen = expandedId === item.id
               const isInline = activeInline?.id === item.id
@@ -155,7 +158,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
               return (
                 <div
                   key={item.id}
-                  style={{ borderBottom: idx < visible.length - 1 ? "0.5px solid #F6F8FF" : "none" }}
+                  style={{ borderBottom: idx < visible.length - 1 ? "0.5px solid var(--premium-row-border)" : "none" }}
                 >
                   {/* Row header */}
                   <button
@@ -169,12 +172,12 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                   >
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center mr-3 flex-shrink-0"
-                      style={{ background: item.type === "pdf" ? "#FFF0F0" : "#EEF4FF" }}
+                      style={{ background: item.type === "pdf" ? "var(--premium-danger-bg)" : "var(--premium-icon-blue-bg)" }}
                     >
                       <span style={{ fontSize: 20 }}>{item.type === "pdf" ? "📄" : "🖼"}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[#101828] truncate" style={{ fontSize: 14 }}>
+                      <p className="font-medium truncate" style={{ fontSize: 14, color: "var(--premium-text)" }}>
                         {savedTitles[item.id] || item.filename}
                       </p>
                       <div className="flex flex-wrap items-center gap-1 mt-1">
@@ -195,10 +198,11 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
-                      <span className="text-[#C8D0E8]" style={{ fontSize: 12 }}>{item.date}</span>
+                      <span style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{item.date}</span>
                       <ChevronRight
                         size={14}
-                        className="text-[#C8D0E8] transition-transform"
+                        className="transition-transform"
+                        color="var(--premium-chevron)"
                         style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }}
                       />
                     </div>
@@ -206,16 +210,16 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
 
                   {/* Expanded: quick actions + inline widgets */}
                   {isOpen && (
-                    <div className="px-4 pb-4" style={{ borderTop: "0.5px solid #F6F8FF" }}>
+                    <div className="px-4 pb-4" style={{ borderTop: "0.5px solid var(--premium-row-border)" }}>
 
                       {/* Title inline */}
                       {currentMode === "title" ? (
                         <div className="mt-3">
-                          <p className="text-[#98A2B3] mb-1.5" style={{ fontSize: 12 }}>填写标题</p>
+                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>填写标题</p>
                           <div className="flex items-center gap-2">
                             <input
-                              className="flex-1 bg-[#F6F8FF] rounded-xl px-3 py-2.5 text-[#101828] outline-none"
-                              style={{ fontSize: 15, border: "0.5px solid #D8E0F8" }}
+                              className="flex-1 rounded-xl px-3 py-2.5 outline-none"
+                              style={{ fontSize: 15, border: "0.5px solid var(--premium-row-border)", background: "var(--premium-surface-soft)", color: "var(--premium-text)" }}
                               placeholder="例如：MacBook Pro 发票"
                               value={titleInputs[item.id] ?? ""}
                               onChange={(e) => setTitleInputs((t) => ({ ...t, [item.id]: e.target.value }))}
@@ -237,7 +241,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                             </button>
                             <button
                               className="ios-tap w-8 h-8 rounded-lg flex items-center justify-center"
-                              style={{ background: "#F6F8FF" }}
+                              style={{ background: "var(--premium-surface-soft)" }}
                               onClick={() => setActiveInline(null)}
                               aria-label="取消"
                             >
@@ -247,7 +251,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                         </div>
                       ) : currentMode === "type" ? (
                         <div className="mt-3">
-                          <p className="text-[#98A2B3] mb-1.5" style={{ fontSize: 12 }}>选择类型</p>
+                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>选择类型</p>
                           <div className="flex flex-wrap gap-2">
                             {TYPE_OPTIONS.map((t) => (
                               <button
@@ -270,8 +274,8 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                             ))}
                           </div>
                           <button
-                            className="ios-tap mt-2 text-[#98A2B3]"
-                            style={{ fontSize: 13 }}
+                            className="ios-tap mt-2"
+                            style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
                             onClick={() => setActiveInline(null)}
                           >
                             取消
@@ -279,7 +283,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                         </div>
                       ) : currentMode === "tag" ? (
                         <div className="mt-3">
-                          <p className="text-[#98A2B3] mb-1.5" style={{ fontSize: 12 }}>选择标签（可多选）</p>
+                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>选择标签（可多选）</p>
                           <div className="flex flex-wrap gap-2 mb-2">
                             {TAG_OPTIONS.map((t) => {
                               const selected = savedTags[item.id]?.includes(t)
@@ -326,13 +330,13 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                         </div>
                       ) : currentMode === "object" ? (
                         <div className="mt-3">
-                          <p className="text-[#98A2B3] mb-1.5" style={{ fontSize: 12 }}>关联对象</p>
-                          <div className="bg-[#F6F8FF] rounded-xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>关联对象</p>
+                          <div className="rounded-xl overflow-hidden" style={{ border: "0.5px solid var(--premium-row-border)", background: "var(--premium-surface-soft)" }}>
                             {OBJECT_OPTIONS.map((obj, i, arr) => (
                               <button
                                 key={obj}
                                 className="ios-tap w-full flex items-center px-3 py-3 text-left"
-                                style={{ borderBottom: i < arr.length - 1 ? "0.5px solid #E8ECF4" : "none" }}
+                                style={{ borderBottom: i < arr.length - 1 ? "0.5px solid var(--premium-row-border)" : "none" }}
                                 onClick={() => {
                                   setSavedObjects((s) => ({ ...s, [item.id]: obj }))
                                   triggerToast(`已关联"${obj}"`)
@@ -340,7 +344,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                                 }}
                                 aria-label={obj}
                               >
-                                <span className="flex-1 font-medium text-[#101828]" style={{ fontSize: 14 }}>{obj}</span>
+                                <span className="flex-1 font-medium" style={{ fontSize: 14, color: "var(--premium-text)" }}>{obj}</span>
                                 {savedObjects[item.id] === obj && (
                                   <CheckCircle2 size={16} className="text-[#14C8A8]" />
                                 )}
@@ -348,8 +352,8 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                             ))}
                           </div>
                           <button
-                            className="ios-tap mt-2 text-[#98A2B3]"
-                            style={{ fontSize: 13 }}
+                            className="ios-tap mt-2"
+                            style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
                             onClick={() => setActiveInline(null)}
                           >
                             取消
@@ -429,7 +433,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                             {allFilled ? (
                               <button
                                 className="ios-tap w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
-                                style={{ background: "#EDFAF7", color: "#0D9B81", fontSize: 15 }}
+                                style={{ background: "var(--premium-success-bg)", color: "var(--premium-success-text)", fontSize: 15 }}
                                 onClick={() => markDone(item.id)}
                                 aria-label="标记整理完成"
                               >
@@ -438,8 +442,8 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                               </button>
                             ) : (
                               <button
-                                className="ios-tap py-2 rounded-xl text-center font-medium text-[#C8D0E8]"
-                                style={{ fontSize: 13 }}
+                                className="ios-tap py-2 rounded-xl text-center font-medium"
+                                style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
                                 onClick={() => markDone(item.id)}
                                 aria-label="跳过，标记已整理"
                               >
@@ -448,8 +452,8 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                             )}
 
                             <button
-                              className="ios-tap w-full py-2.5 rounded-xl text-center font-medium text-[#667085]"
-                              style={{ fontSize: 14, background: "#F6F8FF" }}
+                              className="ios-tap w-full py-2.5 rounded-xl text-center font-medium"
+                              style={{ fontSize: 14, background: "var(--premium-surface-soft)", color: "var(--premium-text-muted)" }}
                               onClick={onSelectRecord}
                               aria-label="查看完整记录"
                             >
@@ -463,7 +467,7 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                 </div>
               )
             })}
-          </div>
+          </PremiumCard>
         )}
       </div>
 

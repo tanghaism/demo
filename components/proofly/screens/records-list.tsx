@@ -3,6 +3,8 @@
 import { useState, useMemo, useCallback } from "react"
 import { Search, Plus, ChevronRight, Bell, SlidersHorizontal } from "lucide-react"
 import { FilterSheet, FilterCategory } from "@/components/proofly/filter-sheet"
+import { AmbientBackground } from "@/components/proofly/ambient-background"
+import { PremiumCard } from "@/components/proofly/premium-card"
 
 const spaceOptions = ["家庭资料箱", "经营资料箱", "事业资料箱"]
 const typeOptions = ["合同", "发票", "收据", "保修", "PDF", "待整理"]
@@ -35,11 +37,11 @@ const records = [
 ]
 
 const typeColors: Record<string, { bg: string; text: string }> = {
-  "发票": { bg: "#EEF4FF", text: "#2563FF" }, "合同": { bg: "#F0EBFF", text: "#7C5CFF" },
-  "收据": { bg: "#EDFAF7", text: "#14C8A8" }, "体检报告": { bg: "#FFF3E0", text: "#FF9500" },
-  "疫苗记录": { bg: "#EDFAF7", text: "#14C8A8" }, "处方": { bg: "#FFF0F0", text: "#FF3B30" },
-  "付款截图": { bg: "#EEF4FF", text: "#2563FF" }, "证照": { bg: "#F0EBFF", text: "#7C5CFF" },
-  "绩效记录": { bg: "#EEF4FF", text: "#2563FF" }, "证书": { bg: "#EDFAF7", text: "#14C8A8" },
+  "发票": { bg: "rgba(37,99,255,0.12)", text: "#2563FF" }, "合同": { bg: "rgba(124,92,255,0.13)", text: "#7C5CFF" },
+  "收据": { bg: "rgba(20,200,168,0.12)", text: "#14C8A8" }, "体检报告": { bg: "rgba(255,149,0,0.14)", text: "#FF9500" },
+  "疫苗记录": { bg: "rgba(20,200,168,0.12)", text: "#14C8A8" }, "处方": { bg: "rgba(255,59,48,0.13)", text: "#FF3B30" },
+  "付款截图": { bg: "rgba(37,99,255,0.12)", text: "#2563FF" }, "证照": { bg: "rgba(124,92,255,0.13)", text: "#7C5CFF" },
+  "绩效记录": { bg: "rgba(37,99,255,0.12)", text: "#2563FF" }, "证书": { bg: "rgba(20,200,168,0.12)", text: "#14C8A8" },
 }
 
 interface RecordsListProps {
@@ -96,76 +98,77 @@ export function RecordsList({ onSelectRecord, onAddRecord, onNavigate, spaceFilt
   }, [selected])
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#F2F2F7", paddingTop: 54 }}>
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: "#000000" }}>记录</h1>
-        <button className="ios-tap flex items-center justify-center" style={{ width: 44, height: 44 }} onClick={onAddRecord} aria-label="新建记录">
-          <Plus size={24} strokeWidth={2.2} style={{ color: "#2563FF" }} />
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ paddingTop: 54 }}>
+      <AmbientBackground />
+      <div className="relative z-10 flex items-center justify-between px-4 pt-3 pb-1">
+        <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: "var(--premium-text)" }}>记录</h1>
+        <button className="ios-tap premium-press flex items-center justify-center rounded-2xl" style={{ width: 44, height: 44, background: "var(--premium-control-surface-strong)", border: "1px solid var(--premium-control-border)" }} onClick={onAddRecord} aria-label="新建记录">
+          <Plus size={23} strokeWidth={2.2} style={{ color: "#4C6FFF" }} />
         </button>
       </div>
 
-      <div className="px-4 pb-2">
-        <button className="ios-tap w-full flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "rgba(118,118,128,0.12)", height: 36 }} onClick={() => onNavigate?.("search")} aria-label="搜索记录">
-          <Search size={15} strokeWidth={2} style={{ color: "#8E8E93", flexShrink: 0 }} /><span style={{ fontSize: 15, color: "#8E8E93" }}>搜索</span>
+      <div className="relative z-10 px-4 pb-2">
+        <button className="ios-tap premium-press w-full flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "var(--premium-control-surface-strong)", border: "1px solid var(--premium-control-border)", height: 36, boxShadow: "var(--premium-control-shadow)" }} onClick={() => onNavigate?.("search")} aria-label="搜索记录">
+          <Search size={15} strokeWidth={2} style={{ color: "var(--premium-text-subtle)", flexShrink: 0 }} /><span style={{ fontSize: 15, color: "var(--premium-text-subtle)" }}>搜索</span>
         </button>
       </div>
 
       {spaceFilter && (
-        <div className="px-4 pb-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "#EEF4FF" }}>
+        <div className="relative z-10 px-4 pb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "var(--premium-chip-blue-bg)" }}>
             <span style={{ fontSize: 14 }}>🏠</span>
             <span className="font-semibold text-[#2563FF]" style={{ fontSize: 12 }}>{spaceFilter}</span>
           </div>
         </div>
       )}
 
-      <div className="flex items-center justify-between px-4 pb-2">
-        <span className="text-[#98A2B3]" style={{ fontSize: 13 }}>{filteredRecords.length} 条记录</span>
+      <div className="relative z-10 flex items-center justify-between px-4 pb-2">
+        <span style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>{filteredRecords.length} 条记录</span>
         <div className="flex items-center gap-3">
           <button className="ios-tap flex items-center gap-1" onClick={() => setShowFilterSheet(true)} aria-label="筛选与排序">
-            <SlidersHorizontal size={14} strokeWidth={2} style={{ color: totalActive > 0 ? "#2563FF" : "#98A2B3" }} />
-            <span style={{ fontSize: 13, color: totalActive > 0 ? "#2563FF" : "#98A2B3", fontWeight: totalActive > 0 ? 600 : 400 }}>
+            <SlidersHorizontal size={14} strokeWidth={2} style={{ color: totalActive > 0 ? "#4C6FFF" : "var(--premium-text-subtle)" }} />
+            <span style={{ fontSize: 13, color: totalActive > 0 ? "#4C6FFF" : "var(--premium-text-subtle)", fontWeight: totalActive > 0 ? 600 : 400 }}>
               筛选{totalActive > 0 ? ` (${totalActive})` : ""} · {sortLabel}
             </span>
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-4 pb-24">
+      <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-4 pb-24">
         {filteredRecords.length === 0 ? (
           <div className="flex flex-col items-center justify-center pt-16 gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#F6F8FF] flex items-center justify-center"><span style={{ fontSize: 28 }}>📂</span></div>
-            <p className="font-semibold text-[#101828]" style={{ fontSize: 16 }}>没有匹配记录</p>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "var(--premium-icon-neutral-bg)" }}><span style={{ fontSize: 28 }}>📂</span></div>
+            <p className="font-semibold" style={{ fontSize: 16, color: "var(--premium-text)" }}>没有匹配记录</p>
             {totalActive > 0 && (
               <button className="ios-tap text-[#2563FF] font-medium" style={{ fontSize: 14 }} onClick={() => setSelected({ space: spaceFilter ? new Set([spaceFilter]) : new Set(), object: new Set(), template: new Set(), sort: new Set(["recent-add"]) })}>清除筛选</button>
             )}
           </div>
         ) : (
-          <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+          <PremiumCard className="rounded-[18px]">
             {filteredRecords.map((r, i) => {
               const tc = typeColors[r.type] || { bg: "#EEF4FF", text: "#2563FF" }
               return (
-                <button key={r.title + r.space + i} className="ios-tap w-full flex items-start px-4 text-left" style={{ paddingTop: 11, paddingBottom: 11, borderBottom: i < filteredRecords.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none" }} onClick={onSelectRecord} aria-label={r.title}>
-                  <div className="flex items-center justify-center flex-shrink-0 mr-3 mt-0.5" style={{ width: 30, height: 30, borderRadius: 7, background: tc.bg }}><span style={{ fontSize: 16 }}>{r.emoji}</span></div>
+                <button key={r.title + r.space + i} className="ios-tap premium-press w-full flex items-start px-4 text-left" style={{ paddingTop: 11, paddingBottom: 11, borderBottom: i < filteredRecords.length - 1 ? "0.5px solid var(--premium-row-border)" : "none" }} onClick={onSelectRecord} aria-label={r.title}>
+                  <div className="flex items-center justify-center flex-shrink-0 mr-3 mt-0.5" style={{ width: 32, height: 32, borderRadius: 10, background: tc.bg, boxShadow: `0 5px 12px ${tc.text}18` }}><span style={{ fontSize: 16 }}>{r.emoji}</span></div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="font-medium leading-snug" style={{ fontSize: 16, color: "#000000" }}>{r.title}</p>
-                      <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">{r.hasReminder && <Bell size={12} strokeWidth={2} style={{ color: "#FF9500" }} />}<ChevronRight size={14} strokeWidth={2} style={{ color: "#C7C7CC" }} /></div>
+                      <p className="font-medium leading-snug" style={{ fontSize: 16, color: "var(--premium-text)" }}>{r.title}</p>
+                      <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">{r.hasReminder && <Bell size={12} strokeWidth={2} style={{ color: "#FFB648" }} />}<ChevronRight size={14} strokeWidth={2} style={{ color: "var(--premium-chevron)" }} /></div>
                     </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className="px-1.5 rounded font-medium" style={{ fontSize: 11, background: tc.bg, color: tc.text, paddingTop: 1, paddingBottom: 1 }}>{r.type}</span>
-                      {r.amount && <span style={{ fontSize: 12, color: "#3A3A3C", fontWeight: 600 }}>{r.amount}</span>}
-                      <span style={{ fontSize: 12, color: "#8E8E93" }}>{r.date}</span>
+                      {r.amount && <span style={{ fontSize: 12, color: "var(--premium-text-muted)", fontWeight: 600 }}>{r.amount}</span>}
+                      <span style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{r.date}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      {!spaceFilter && <span className="text-[#98A2B3]" style={{ fontSize: 11 }}>{r.space}</span>}
-                      {r.tag && <span className="text-[#98A2B3]" style={{ fontSize: 11 }}>#{r.tag}</span>}
+                      {!spaceFilter && <span style={{ fontSize: 11, color: "var(--premium-text-subtle)" }}>{r.space}</span>}
+                      {r.tag && <span style={{ fontSize: 11, color: "var(--premium-text-subtle)" }}>#{r.tag}</span>}
                     </div>
                   </div>
                 </button>
               )
             })}
-          </div>
+          </PremiumCard>
         )}
       </div>
 

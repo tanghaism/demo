@@ -42,11 +42,14 @@ export function TabBar({ activeTab, onTabChange, onAddRecord, onAddObject }: Tab
     <>
       {/* Backdrop */}
       <div
-        className="absolute inset-0 z-30 transition-opacity duration-200 pointer-events-none"
+        className="absolute inset-0 z-30 pointer-events-none"
         style={{
-          background: "rgba(0,0,0,0.25)",
+          background: "var(--premium-overlay)",
           opacity: showActions ? 1 : 0,
           pointerEvents: showActions ? "auto" : "none",
+          backdropFilter: showActions ? "blur(2px)" : "blur(0)",
+          WebkitBackdropFilter: showActions ? "blur(2px)" : "blur(0)",
+          transition: "opacity var(--motion-standard) var(--motion-ease), backdrop-filter var(--motion-standard) var(--motion-ease)",
         }}
         onClick={() => setShowActions(false)}
       />
@@ -54,54 +57,60 @@ export function TabBar({ activeTab, onTabChange, onAddRecord, onAddObject }: Tab
       {/* Floating action buttons — horizontal, above the tab bar */}
       <div
         className="absolute left-0 right-0 z-50 flex items-center justify-center pointer-events-none"
-        style={{ bottom: 84 }}
+        style={{ bottom: 102 }}
       >
         {/* 添加记录 — slides left */}
         <button
-          className="ios-tap flex items-center gap-2 px-3 py-2.5 rounded-xl shadow-lg transition-all duration-200 ease-out"
+          className="ios-tap premium-press flex items-center gap-2 rounded-2xl px-3 py-2.5"
           style={{
-            background: "#FFFFFF",
+            background: "var(--premium-action-surface)",
+            border: "1px solid var(--premium-action-border)",
+            boxShadow: "var(--premium-action-shadow)",
             opacity: showActions ? 1 : 0,
-            transform: showActions ? "translateX(-8px)" : "translateX(40px)",
+            transform: showActions ? "translateY(0) translateX(-8px) scale(1)" : "translateY(16px) translateX(40px) scale(0.94)",
             pointerEvents: showActions ? "auto" : "none",
+            transition: "opacity var(--motion-standard) var(--motion-ease), transform var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) var(--motion-ease)",
           }}
           onClick={handleAddRecord}
           aria-label="添加记录"
         >
           <span style={{ fontSize: 20 }}>📝</span>
-          <span className="font-semibold text-[#101828]" style={{ fontSize: 14 }}>添加记录</span>
+          <span className="font-semibold" style={{ fontSize: 14, color: "var(--premium-text)" }}>添加记录</span>
         </button>
 
         {/* 添加对象 — slides right */}
         <button
-          className="ios-tap flex items-center gap-2 px-3 py-2.5 rounded-xl shadow-lg transition-all duration-200 ease-out"
+          className="ios-tap premium-press flex items-center gap-2 rounded-2xl px-3 py-2.5"
           style={{
-            background: "#FFFFFF",
+            background: "var(--premium-action-surface)",
+            border: "1px solid var(--premium-action-border)",
+            boxShadow: "var(--premium-action-shadow)",
             opacity: showActions ? 1 : 0,
-            transform: showActions ? "translateX(8px)" : "translateX(-40px)",
+            transform: showActions ? "translateY(0) translateX(8px) scale(1)" : "translateY(16px) translateX(-40px) scale(0.94)",
             pointerEvents: showActions ? "auto" : "none",
             marginLeft: 12,
+            transition: "opacity var(--motion-standard) var(--motion-ease), transform var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) var(--motion-ease)",
           }}
           onClick={handleAddObject}
           aria-label="添加对象"
         >
           <span style={{ fontSize: 20 }}>📌</span>
-          <span className="font-semibold text-[#101828]" style={{ fontSize: 14 }}>添加对象</span>
+          <span className="font-semibold" style={{ fontSize: 14, color: "var(--premium-text)" }}>添加对象</span>
         </button>
       </div>
 
       {/* Tab bar */}
-      <div
-        className="absolute bottom-0 left-0 right-0 z-40"
-        style={{
-          background: "rgba(249,249,249,0.94)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderTop: "0.5px solid rgba(60,60,67,0.29)",
-          paddingBottom: 22,
-        }}
-      >
-        <div className="flex items-start justify-around pt-2.5">
+      <div className="absolute left-4 right-4 z-40" style={{ bottom: 14 }}>
+        <div
+          className="premium-glass"
+          style={{
+            borderRadius: 28,
+            paddingBottom: 10,
+            background: "var(--premium-tab-surface)",
+            boxShadow: "var(--premium-tab-shadow)",
+          }}
+        >
+          <div className="flex items-start justify-around pt-2.5">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
@@ -116,21 +125,24 @@ export function TabBar({ activeTab, onTabChange, onAddRecord, onAddObject }: Tab
                     onTabChange(tab.id)
                   }
                 }}
-                className="flex flex-col items-center gap-1 ios-tap"
+                className="ios-tap premium-press flex flex-col items-center gap-1"
                 style={{ flex: 1, minWidth: 0 }}
               >
                 {tab.prominent ? (
                   <div
-                    className="flex items-center justify-center flex-shrink-0 transition-transform duration-250"
+                    className="flex items-center justify-center flex-shrink-0"
                     style={{
                       width: 42,
                       height: 42,
                       borderRadius: "50%",
                       background: showActions
                         ? "#101828"
-                        : "linear-gradient(135deg, #2563FF 0%, #7C5CFF 100%)",
-                      boxShadow: "0 2px 8px rgba(37,99,255,0.3)",
+                        : "linear-gradient(135deg, #5B7CFF 0%, #7B61FF 100%)",
+                      boxShadow: showActions
+                        ? "0 10px 22px rgba(16,24,40,0.24)"
+                        : "0 12px 24px rgba(76,111,255,0.32)",
                       transform: showActions ? "rotate(45deg)" : "rotate(0deg)",
+                      transition: "transform var(--motion-standard) var(--motion-ease), background var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) var(--motion-ease)",
                     }}
                   >
                     <Icon size={22} strokeWidth={2.5} style={{ color: "#FFFFFF" }} />
@@ -141,7 +153,7 @@ export function TabBar({ activeTab, onTabChange, onAddRecord, onAddObject }: Tab
                       <Icon
                         size={22}
                         strokeWidth={isActive ? 2.2 : 1.6}
-                        style={{ color: isActive ? "#2563FF" : "#8E8E93" }}
+                        style={{ color: isActive ? "#4C6FFF" : "var(--premium-text-subtle)" }}
                       />
                       {tab.id === "reminders" && (
                         <div
@@ -152,7 +164,7 @@ export function TabBar({ activeTab, onTabChange, onAddRecord, onAddObject }: Tab
                     </div>
                     <span
                       className={cn("leading-none", isActive ? "font-semibold" : "font-medium")}
-                      style={{ fontSize: 10, color: isActive ? "#2563FF" : "#8E8E93" }}
+                      style={{ fontSize: 10, color: isActive ? "#4C6FFF" : "var(--premium-text-subtle)" }}
                     >
                       {tab.label}
                     </span>
@@ -161,6 +173,7 @@ export function TabBar({ activeTab, onTabChange, onAddRecord, onAddObject }: Tab
               </button>
             )
           })}
+          </div>
         </div>
       </div>
     </>

@@ -73,24 +73,24 @@ export function FilterSheet({ categories, initialSelected, onApply, onClose }: F
   }
 
   return (
-    <div className="absolute inset-0 z-40" onClick={onClose}>
-      <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
+    <div className="absolute inset-0 z-[80]" onClick={onClose}>
+      <div className="absolute inset-0 premium-sheet-overlay" style={{ background: "var(--premium-overlay)" }} />
       <div
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl pt-2 flex flex-col"
-        style={{ boxShadow: "0 -4px 32px rgba(0,0,0,0.12)", height: "72%" }}
+        className="absolute bottom-0 left-0 right-0 rounded-t-3xl pt-2 flex flex-col premium-sheet-panel"
+        style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)", height: "72%", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5 flex-shrink-0" />
+        <div className="w-10 h-1 rounded-full mx-auto mb-5 flex-shrink-0" style={{ background: "var(--premium-row-border)" }} />
 
         {/* Title */}
         <div className="px-5 mb-4 flex-shrink-0">
-          <p className="font-bold text-[#101828]" style={{ fontSize: 18 }}>筛选与排序</p>
+          <p className="font-bold" style={{ fontSize: 18, color: "var(--premium-text)" }}>筛选与排序</p>
         </div>
 
         {/* Two-column layout */}
         <div className="flex flex-1 overflow-hidden min-h-0">
           {/* Left: category menu */}
-          <div className="flex-shrink-0 overflow-y-auto hide-scrollbar" style={{ width: 120, background: "#F6F8FF" }}>
+          <div className="flex-shrink-0 overflow-y-auto hide-scrollbar" style={{ width: 120, background: "var(--premium-surface-soft)" }}>
             {categories.map((cat) => {
               const isActive = activeCategory === cat.id
               const count = localSelected[cat.id]?.size ?? 0
@@ -98,12 +98,12 @@ export function FilterSheet({ categories, initialSelected, onApply, onClose }: F
                 <button
                   key={cat.id}
                   className="ios-tap w-full flex items-center justify-between px-4 py-3.5"
-                  style={{ background: isActive ? "#FFFFFF" : "transparent" }}
+                  style={{ background: isActive ? "var(--premium-surface)" : "transparent" }}
                   onClick={() => setActiveCategory(cat.id)}
                 >
-                  <span className="font-medium" style={{ fontSize: 14, color: isActive ? "#101828" : "#98A2B3" }}>{cat.label}</span>
+                  <span className="font-medium" style={{ fontSize: 14, color: isActive ? "var(--premium-text)" : "var(--premium-text-subtle)" }}>{cat.label}</span>
                   {count > 0 && (
-                    <span className="flex items-center justify-center rounded-full" style={{ width: 18, height: 18, background: "#2563FF", fontSize: 10, fontWeight: 700, color: "#FFFFFF" }}>{count}</span>
+                    <span className="flex items-center justify-center rounded-full" style={{ width: 18, height: 18, background: "#4C6FFF", fontSize: 10, fontWeight: 700, color: "#FFFFFF" }}>{count}</span>
                   )}
                 </button>
               )
@@ -111,10 +111,10 @@ export function FilterSheet({ categories, initialSelected, onApply, onClose }: F
           </div>
 
           {/* Right: options panel */}
-          <div className="flex-1 overflow-y-auto hide-scrollbar bg-white px-4 pt-2 pb-4">
+          <div className="flex-1 overflow-y-auto hide-scrollbar px-4 pt-2 pb-4">
             {currentCategory && (
               <div>
-                <p className="font-semibold text-[#101828] mb-3" style={{ fontSize: 15 }}>{currentCategory.label}</p>
+                <p className="font-semibold mb-3" style={{ fontSize: 15, color: "var(--premium-text)" }}>{currentCategory.label}</p>
                 <div className="flex flex-col gap-0.5">
                   {currentCategory.options.map((opt) => {
                     const isSelected = localSelected[currentCategory.id]?.has(opt.id) ?? false
@@ -122,16 +122,16 @@ export function FilterSheet({ categories, initialSelected, onApply, onClose }: F
                       <button
                         key={opt.id}
                         className="ios-tap w-full flex items-center justify-between px-3 py-3 rounded-xl"
-                        style={{ background: isSelected ? "#EEF4FF" : "transparent" }}
+                        style={{ background: isSelected ? "var(--premium-surface-selected)" : "transparent" }}
                         onClick={() => handleToggle(currentCategory.id, opt.id)}
                       >
-                        <span className="font-medium" style={{ fontSize: 15, color: isSelected ? "#2563FF" : "#101828" }}>{opt.label}</span>
+                        <span className="font-medium" style={{ fontSize: 15, color: isSelected ? "#4C6FFF" : "var(--premium-text)" }}>{opt.label}</span>
                         {currentCategory.multiSelect ? (
-                          <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: isSelected ? "#2563FF" : "transparent", border: isSelected ? "none" : "1.5px solid #C8D0E8" }}>
+                          <div className="w-5 h-5 rounded-md flex items-center justify-center" style={{ background: isSelected ? "#4C6FFF" : "transparent", border: isSelected ? "none" : "1.5px solid var(--premium-row-border)" }}>
                             {isSelected && <Check size={12} strokeWidth={3} className="text-white" />}
                           </div>
                         ) : (
-                          isSelected && <Check size={16} strokeWidth={2.5} className="text-[#2563FF]" />
+                          isSelected && <Check size={16} strokeWidth={2.5} className="text-[#4C6FFF]" />
                         )}
                       </button>
                     )
@@ -143,17 +143,20 @@ export function FilterSheet({ categories, initialSelected, onApply, onClose }: F
         </div>
 
         {/* Bottom actions */}
-        <div className="flex-shrink-0 flex gap-3 px-4 pt-3 pb-8" style={{ borderTop: "0.5px solid #E8ECF4" }}>
+        <div
+          className="flex-shrink-0 flex gap-3 px-4 pt-3"
+          style={{ borderTop: "0.5px solid var(--premium-row-border)", paddingBottom: "max(24px, env(safe-area-inset-bottom))" }}
+        >
           <button
             className="ios-tap flex-1 flex items-center justify-center rounded-xl font-semibold"
-            style={{ height: 50, fontSize: 16, background: "#F6F8FF", color: "#101828" }}
+            style={{ height: 50, fontSize: 16, background: "var(--premium-surface-soft)", color: "var(--premium-text)" }}
             onClick={handleReset}
           >
             重置
           </button>
           <button
             className="ios-tap flex-1 flex items-center justify-center rounded-xl font-semibold text-white"
-            style={{ height: 50, fontSize: 16, background: "#2563FF" }}
+            style={{ height: 50, fontSize: 16, background: "linear-gradient(135deg, #5B7CFF 0%, #7B61FF 100%)" }}
             onClick={handleConfirm}
           >
             确认

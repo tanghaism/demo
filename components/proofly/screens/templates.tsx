@@ -1,6 +1,8 @@
 "use client"
 
 import { ChevronLeft, ChevronRight, Lock, Plus } from "lucide-react"
+import { AmbientBackground } from "@/components/proofly/ambient-background"
+import { PremiumCard } from "@/components/proofly/premium-card"
 
 const builtinTemplates = [
   { emoji: "🧾", name: "发票 / 收据", desc: "日期、金额、商家名", fields: 3 },
@@ -23,12 +25,12 @@ interface TemplatesScreenProps {
 
 export function TemplatesScreen({ onBack, onNavigate }: TemplatesScreenProps) {
   return (
-    <div className="flex flex-col h-full" style={{ background: "#F2F2F7", paddingTop: 54 }}>
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ paddingTop: 54 }}>
+      <AmbientBackground />
 
       {/* iOS push navigation bar */}
       <div
-        className="flex items-center px-1 pt-2 pb-2"
-        style={{ borderBottom: "0.5px solid rgba(60,60,67,0.29)", background: "#F2F2F7" }}
+        className="relative z-10 flex items-center px-1 pt-2 pb-2"
       >
         <button
           className="ios-tap flex items-center px-2"
@@ -36,50 +38,52 @@ export function TemplatesScreen({ onBack, onNavigate }: TemplatesScreenProps) {
           onClick={onBack}
           aria-label="返回设置"
         >
-          <ChevronLeft size={20} strokeWidth={2.5} style={{ color: "#007AFF" }} />
-          <span style={{ fontSize: 17, color: "#007AFF" }}>设置</span>
+          <ChevronLeft size={20} strokeWidth={2.5} style={{ color: "#4C6FFF" }} />
+          <span style={{ fontSize: 17, color: "#4C6FFF" }}>设置</span>
         </button>
         <span
-          style={{ fontSize: 17, fontWeight: 600, color: "#000000", position: "absolute", left: "50%", transform: "translateX(-50%)" }}
+          style={{ fontSize: 17, fontWeight: 600, color: "var(--premium-text)", position: "absolute", left: "50%", transform: "translateX(-50%)" }}
         >
           模板管理
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-4 pb-24">
+      <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-4 pb-24">
 
-        <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 20, paddingBottom: 6, paddingTop: 22 }}>内置模板</p>
-        <div className="mb-5" style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+        <div className="flex items-center px-5 mt-3 mb-2" style={{ height: 30 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase" }}>内置模板</p>
+        </div>
+        <PremiumCard className="mb-5 rounded-[18px]">
           {builtinTemplates.map((t, i) => (
             <div
               key={t.name}
               className="ios-tap flex items-center px-4"
               style={{
                 height: 56,
-                borderBottom: i < builtinTemplates.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
+                borderBottom: i < builtinTemplates.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
               }}
               aria-label={t.name}
             >
               <div
                 className="flex items-center justify-center flex-shrink-0 mr-3"
-                style={{ width: 30, height: 30, borderRadius: 7, background: "#EEF4FF" }}
+                style={{ width: 30, height: 30, borderRadius: 7, background: "var(--premium-icon-blue-bg)" }}
               >
                 <span style={{ fontSize: 17 }}>{t.emoji}</span>
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p style={{ fontSize: 16, color: "#000000", fontWeight: 500 }}>{t.name}</p>
-                <p style={{ fontSize: 12, color: "#8E8E93" }}>{t.desc} · {t.fields} 个字段</p>
+                <p style={{ fontSize: 16, color: "var(--premium-text)", fontWeight: 500 }}>{t.name}</p>
+                <p style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{t.desc} · {t.fields} 个字段</p>
               </div>
             </div>
           ))}
-        </div>
+        </PremiumCard>
 
         {/* Custom templates */}
-        <div className="flex items-center justify-between mb-1" style={{ paddingLeft: 4, paddingRight: 4 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 20, paddingBottom: 6, paddingTop: 22 }}>自定义模板</p>
+        <div className="flex items-center justify-between px-5 mt-3 mb-2" style={{ height: 30 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase" }}>自定义模板</p>
           <button
             className="ios-tap flex items-center gap-1 px-3 py-1.5 rounded-xl"
-            style={{ background: "#EEF4FF" }}
+            style={{ background: "var(--premium-chip-blue-bg)" }}
             onClick={() => onNavigate("template-editor")}
             aria-label="新建自定义模板"
           >
@@ -89,57 +93,57 @@ export function TemplatesScreen({ onBack, onNavigate }: TemplatesScreenProps) {
         </div>
 
         {customTemplates.length > 0 ? (
-          <div className="mb-5" style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+          <PremiumCard className="mb-5 rounded-[18px]">
             {customTemplates.map((t, i) => (
               <button
                 key={t.name}
                 className="ios-tap w-full flex items-center px-4"
                 style={{
                   height: 56,
-                  borderBottom: i < customTemplates.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
+                  borderBottom: i < customTemplates.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
                 }}
                 onClick={() => onNavigate("template-editor")}
                 aria-label={`编辑模板 ${t.name}`}
               >
                 <div
                   className="flex items-center justify-center flex-shrink-0 mr-3"
-                  style={{ width: 30, height: 30, borderRadius: 7, background: "#F0EBFF" }}
+                  style={{ width: 30, height: 30, borderRadius: 7, background: "var(--premium-icon-indigo-bg)" }}
                 >
                   <span style={{ fontSize: 17 }}>{t.emoji}</span>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p style={{ fontSize: 16, color: "#000000", fontWeight: 500 }}>{t.name}</p>
-                  <p style={{ fontSize: 12, color: "#8E8E93" }}>{t.desc} · {t.fields} 个字段</p>
+                  <p style={{ fontSize: 16, color: "var(--premium-text)", fontWeight: 500 }}>{t.name}</p>
+                  <p style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{t.desc} · {t.fields} 个字段</p>
                 </div>
-                <ChevronRight size={16} strokeWidth={2} style={{ color: "#C7C7CC" }} />
+                <ChevronRight size={16} strokeWidth={2} style={{ color: "var(--premium-chevron)" }} />
               </button>
             ))}
-          </div>
+          </PremiumCard>
         ) : (
           <button
-            className="ios-tap w-full flex flex-col items-center justify-center gap-2 rounded-xl py-8 mb-5"
-            style={{ border: "1.5px dashed rgba(60,60,67,0.2)", background: "transparent" }}
+          className="ios-tap premium-press w-full flex flex-col items-center justify-center gap-2 rounded-2xl py-8 mb-5"
+          style={{ border: "1.5px dashed rgba(76,111,255,0.22)", background: "var(--premium-control-surface-strong)" }}
             onClick={() => onNavigate("template-editor")}
             aria-label="新建自定义模板"
           >
             <div
               className="flex items-center justify-center"
-              style={{ width: 40, height: 40, borderRadius: 10, background: "#F0EBFF" }}
+              style={{ width: 40, height: 40, borderRadius: 10, background: "var(--premium-icon-indigo-bg)" }}
             >
               <Plus size={20} strokeWidth={1.8} style={{ color: "#5856D6" }} />
             </div>
             <p style={{ fontSize: 15, fontWeight: 500, color: "#5856D6" }}>新建自定义模板</p>
-            <p style={{ fontSize: 13, color: "#8E8E93" }}>自定义字段、标签和默认提醒</p>
+            <p style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>自定义字段、标签和默认提醒</p>
           </button>
         )}
 
         {/* Pro hint */}
         <div
           className="flex items-start gap-3 px-4 py-3 rounded-xl"
-          style={{ background: "#FFF8EC" }}
+          style={{ background: "var(--premium-warning-bg)", border: "1px solid var(--premium-warning-border)" }}
         >
           <span style={{ fontSize: 15 }}>💡</span>
-          <p className="text-[#8A5F00] leading-relaxed" style={{ fontSize: 12 }}>
+          <p className="leading-relaxed" style={{ fontSize: 12, color: "var(--premium-warning-text)" }}>
             免费版只能查看内置模板。创建自定义模板需要升级 Pro，删除自定义模板不会影响已保存的资料。
           </p>
         </div>

@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Search, X, ChevronRight, Info } from "lucide-react"
+import { AmbientBackground } from "@/components/proofly/ambient-background"
+import { PremiumCard } from "@/components/proofly/premium-card"
 
 const allRecords = [
   { emoji: "🧾", title: "MacBook Pro 发票", type: "发票", date: "2026-05-12", amount: "¥14,999", hasPdf: true, hasReminder: false, isPending: false, isThisMonth: true },
@@ -42,11 +44,11 @@ const allEvents = [
 const recentSearches = ["MacBook", "租赁合同", "体检"]
 
 const typeColors: Record<string, { bg: string; text: string }> = {
-  "发票": { bg: "#EEF4FF", text: "#007AFF" },
-  "合同": { bg: "#F0EBFF", text: "#5856D6" },
-  "收据": { bg: "#EDFAF7", text: "#34C759" },
-  "体检报告": { bg: "#FFF3E0", text: "#FF9500" },
-  "处方": { bg: "#FFF0F0", text: "#FF3B30" },
+  "发票": { bg: "rgba(37,99,255,0.12)", text: "#007AFF" },
+  "合同": { bg: "rgba(124,92,255,0.13)", text: "#5856D6" },
+  "收据": { bg: "rgba(52,199,89,0.12)", text: "#34C759" },
+  "体检报告": { bg: "rgba(255,149,0,0.14)", text: "#FF9500" },
+  "处方": { bg: "rgba(255,59,48,0.13)", text: "#FF3B30" },
 }
 
 interface SearchScreenProps {
@@ -85,18 +87,19 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
   const noResults = isSearching && filteredRecords.length === 0 && matchedObjects.length === 0 && matchedEvents.length === 0
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#F2F2F7", paddingTop: 54 }}>
+    <div className="relative flex flex-col h-full overflow-hidden" style={{ paddingTop: 54 }}>
+      <AmbientBackground />
 
       {/* iOS search bar + cancel */}
-      <div className="flex items-center gap-2.5 px-4 pt-3 pb-2">
+      <div className="relative z-10 flex items-center gap-2.5 px-4 pt-3 pb-2">
         <div
           className="flex items-center gap-2 flex-1 px-3 rounded-xl"
-          style={{ background: "rgba(118,118,128,0.12)", height: 36 }}
+          style={{ background: "var(--premium-control-surface-strong)", border: "1px solid var(--premium-control-border)", height: 36 }}
         >
-          <Search size={15} strokeWidth={2} style={{ color: "#8E8E93", flexShrink: 0 }} />
+          <Search size={15} strokeWidth={2} style={{ color: "var(--premium-text-subtle)", flexShrink: 0 }} />
           <input
             className="flex-1 bg-transparent outline-none"
-            style={{ fontSize: 15, color: "#000000" }}
+            style={{ fontSize: 15, color: "var(--premium-text)" }}
             placeholder="标题、标签或文件名"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -115,7 +118,7 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
         </div>
         <button
           className="ios-tap flex-shrink-0"
-          style={{ fontSize: 17, color: "#007AFF" }}
+          style={{ fontSize: 17, color: "#4C6FFF" }}
           onClick={onClose}
           aria-label="取消"
         >
@@ -124,7 +127,7 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
       </div>
 
       {/* Quick filter pills — same iOS style as records-list */}
-      <div className="flex gap-2 px-4 pb-2 overflow-x-auto hide-scrollbar">
+      <div className="relative z-10 flex gap-2 px-4 pb-2 overflow-x-auto hide-scrollbar">
         {quickFilters.map((f) => {
           const isActive = activeFilter === f.id
           return (
@@ -134,8 +137,8 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
               style={{
                 fontSize: 13,
                 height: 30,
-                background: isActive ? "#007AFF" : "rgba(118,118,128,0.12)",
-                color: isActive ? "#FFFFFF" : "#3A3A3C",
+            background: isActive ? "#4C6FFF" : "var(--premium-control-surface-strong)",
+            color: isActive ? "#FFFFFF" : "var(--premium-text-muted)",
                 fontWeight: isActive ? 600 : 400,
               }}
               onClick={() => setActiveFilter(isActive ? null : f.id)}
@@ -147,19 +150,19 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
         })}
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar pb-6">
+      <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar pb-6">
 
         {/* No results */}
         {noResults && (
           <div className="flex flex-col items-center justify-center pt-14 gap-3 px-6">
             <div
               className="flex items-center justify-center"
-              style={{ width: 64, height: 64, borderRadius: 16, background: "#F2F2F7" }}
+              style={{ width: 64, height: 64, borderRadius: 16, background: "var(--premium-icon-neutral-bg)" }}
             >
-              <Search size={24} strokeWidth={1.5} style={{ color: "#C7C7CC" }} />
+              <Search size={24} strokeWidth={1.5} style={{ color: "var(--premium-icon-neutral-fg)" }} />
             </div>
-            <p style={{ fontSize: 17, fontWeight: 600, color: "#000000" }}>没有找到匹配资料</p>
-            <p style={{ fontSize: 15, color: "#8E8E93", textAlign: "center", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 17, fontWeight: 600, color: "var(--premium-text)" }}>没有找到匹配资料</p>
+            <p style={{ fontSize: 15, color: "var(--premium-text-subtle)", textAlign: "center", lineHeight: 1.5 }}>
               试试标题、标签或文件名
             </p>
             <SearchHint />
@@ -169,13 +172,13 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
         {/* Default state */}
         {!isSearching && (
           <div className="px-4">
-            <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 8 }}>最近搜索</p>
+            <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 8 }}>最近搜索</p>
             <div className="flex flex-wrap gap-2 mb-4 px-0">
               {recentSearches.map((s) => (
                 <button
                   key={s}
                   className="ios-tap px-4 py-2"
-                  style={{ fontSize: 14, color: "#000000", background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}
+                  style={{ fontSize: 14, color: "var(--premium-text)", background: "var(--premium-surface)", borderRadius: 12, overflow: "hidden" }}
                   onClick={() => setQuery(s)}
                 >
                   {s}
@@ -183,33 +186,33 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
               ))}
             </div>
 
-            <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 4 }}>全部对象</p>
-            <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+            <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 4 }}>全部对象</p>
+            <PremiumCard className="rounded-[18px]">
               {allObjects.map((obj, i, arr) => (
                 <button
                   key={obj.name}
                   className="ios-tap w-full flex items-center px-4"
                   style={{
                     height: 52,
-                    borderBottom: i < arr.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
+                    borderBottom: i < arr.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
                   }}
                   onClick={() => (onSelectObject ?? onSelectRecord)()}
                   aria-label={obj.name}
                 >
                   <div
                     className="flex items-center justify-center flex-shrink-0 mr-3"
-                    style={{ width: 30, height: 30, borderRadius: 7, background: "#EEF4FF" }}
+                    style={{ width: 30, height: 30, borderRadius: 7, background: "var(--premium-icon-blue-bg)" }}
                   >
                     <span style={{ fontSize: 17 }}>{obj.emoji}</span>
                   </div>
                   <div className="flex-1 min-w-0 text-left">
-                    <p style={{ fontSize: 16, color: "#000000", fontWeight: 500 }}>{obj.name}</p>
-                    <p style={{ fontSize: 12, color: "#8E8E93" }}>{obj.type} · {obj.count} 条记录</p>
+                    <p style={{ fontSize: 16, color: "var(--premium-text)", fontWeight: 500 }}>{obj.name}</p>
+                    <p style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{obj.type} · {obj.count} 条记录</p>
                   </div>
-                  <ChevronRight size={16} strokeWidth={2} style={{ color: "#C7C7CC" }} />
+                  <ChevronRight size={16} strokeWidth={2} style={{ color: "var(--premium-chevron)" }} />
                 </button>
               ))}
-            </div>
+            </PremiumCard>
 
             <div className="mt-4">
               <SearchHint />
@@ -222,10 +225,10 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
           <div className="px-4 flex flex-col gap-4">
             {filteredRecords.length > 0 && (
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 8 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 8 }}>
                   记录 / 资料 · {filteredRecords.length} 条
                 </p>
-                <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+                <PremiumCard className="rounded-[18px]">
                   {filteredRecords.map((r, i) => {
                     const tc = typeColors[r.type] || { bg: "#EEF4FF", text: "#007AFF" }
                     return (
@@ -236,7 +239,7 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
                           minHeight: 52,
                           paddingTop: 10,
                           paddingBottom: 10,
-                          borderBottom: i < filteredRecords.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
+                          borderBottom: i < filteredRecords.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
                         }}
                         onClick={onSelectRecord}
                         aria-label={r.title}
@@ -248,7 +251,7 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
                           <span style={{ fontSize: 17 }}>{r.emoji}</span>
                         </div>
                         <div className="flex-1 min-w-0 text-left">
-                          <p style={{ fontSize: 16, color: "#000000", fontWeight: 500 }} className="truncate">{r.title}</p>
+                          <p style={{ fontSize: 16, color: "var(--premium-text)", fontWeight: 500 }} className="truncate">{r.title}</p>
                           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                             <span
                               className="px-1.5 rounded"
@@ -256,8 +259,8 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
                             >
                               {r.type}
                             </span>
-                            {r.amount && <span style={{ fontSize: 12, color: "#3A3A3C" }}>{r.amount}</span>}
-                            <span style={{ fontSize: 12, color: "#8E8E93" }}>{r.date}</span>
+                            {r.amount && <span style={{ fontSize: 12, color: "var(--premium-text-muted)" }}>{r.amount}</span>}
+                            <span style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{r.date}</span>
                             {r.isPending && (
                               <span
                                 className="px-1.5 rounded"
@@ -268,79 +271,79 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
                             )}
                           </div>
                         </div>
-                        <ChevronRight size={16} strokeWidth={2} style={{ color: "#C7C7CC", flexShrink: 0 }} />
+                        <ChevronRight size={16} strokeWidth={2} style={{ color: "var(--premium-chevron)", flexShrink: 0 }} />
                       </button>
                     )
                   })}
-                </div>
+                </PremiumCard>
               </div>
             )}
 
             {matchedObjects.length > 0 && (
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 4 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 4 }}>
                   对象 · {matchedObjects.length} 个
                 </p>
-                <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+                <PremiumCard className="rounded-[18px]">
                   {matchedObjects.map((obj, i, arr) => (
                     <button
                       key={obj.name}
                       className="ios-tap w-full flex items-center px-4"
                       style={{
                         height: 52,
-                        borderBottom: i < arr.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
+                        borderBottom: i < arr.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
                       }}
                       onClick={() => (onSelectObject ?? onSelectRecord)()}
                       aria-label={obj.name}
                     >
                       <div
                         className="flex items-center justify-center flex-shrink-0 mr-3"
-                        style={{ width: 30, height: 30, borderRadius: 7, background: "#EEF4FF" }}
+                        style={{ width: 30, height: 30, borderRadius: 7, background: "var(--premium-icon-blue-bg)" }}
                       >
                         <span style={{ fontSize: 17 }}>{obj.emoji}</span>
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p style={{ fontSize: 16, color: "#000000", fontWeight: 500 }}>{obj.name}</p>
-                        <p style={{ fontSize: 12, color: "#8E8E93" }}>{obj.type} · {obj.count} 条记录</p>
+                        <p style={{ fontSize: 16, color: "var(--premium-text)", fontWeight: 500 }}>{obj.name}</p>
+                        <p style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{obj.type} · {obj.count} 条记录</p>
                       </div>
-                      <ChevronRight size={16} strokeWidth={2} style={{ color: "#C7C7CC" }} />
+                      <ChevronRight size={16} strokeWidth={2} style={{ color: "var(--premium-chevron)" }} />
                     </button>
                   ))}
-                </div>
+                </PremiumCard>
               </div>
             )}
 
             {matchedEvents.length > 0 && (
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "#6B7280", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 4 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", color: "var(--premium-text-muted)", textTransform: "uppercase", paddingLeft: 4, paddingBottom: 6, paddingTop: 4 }}>
                   事件 · {matchedEvents.length} 条
                 </p>
-                <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
+                <PremiumCard className="rounded-[18px]">
                   {matchedEvents.map((ev, i, arr) => (
                     <button
                       key={ev.title + ev.date}
                       className="ios-tap w-full flex items-center px-4"
                       style={{
                         height: 52,
-                        borderBottom: i < arr.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
+                        borderBottom: i < arr.length - 1 ? "0.5px solid var(--premium-row-border)" : "none",
                       }}
                       onClick={() => (onSelectEvent ?? onSelectObject ?? onSelectRecord)()}
                       aria-label={ev.title}
                     >
                       <div
                         className="flex items-center justify-center flex-shrink-0 mr-3"
-                        style={{ width: 30, height: 30, borderRadius: 7, background: "#F0EBFF" }}
+                        style={{ width: 30, height: 30, borderRadius: 7, background: "var(--premium-icon-indigo-bg)" }}
                       >
                         <span style={{ fontSize: 17 }}>{ev.emoji}</span>
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p style={{ fontSize: 16, color: "#000000", fontWeight: 500 }}>{ev.title}</p>
-                        <p style={{ fontSize: 12, color: "#8E8E93" }}>{ev.object} · {ev.date}</p>
+                        <p style={{ fontSize: 16, color: "var(--premium-text)", fontWeight: 500 }}>{ev.title}</p>
+                        <p style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{ev.object} · {ev.date}</p>
                       </div>
-                      <ChevronRight size={16} strokeWidth={2} style={{ color: "#C7C7CC" }} />
+                      <ChevronRight size={16} strokeWidth={2} style={{ color: "var(--premium-chevron)" }} />
                     </button>
                   ))}
-                </div>
+                </PremiumCard>
               </div>
             )}
 
@@ -354,12 +357,9 @@ export function SearchScreen({ onClose, onSelectRecord, onSelectObject, onSelect
 
 function SearchHint() {
   return (
-    <div
-      className="flex items-start gap-2.5 px-4 py-3"
-      style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}
-    >
-      <Info size={14} strokeWidth={2} style={{ color: "#8E8E93", flexShrink: 0, marginTop: 1 }} />
-      <p style={{ fontSize: 13, color: "#8E8E93", lineHeight: 1.5 }}>
+    <div className="premium-glass flex items-start gap-2.5 px-4 py-3 rounded-2xl">
+      <Info size={14} strokeWidth={2} style={{ color: "var(--premium-text-subtle)", flexShrink: 0, marginTop: 1 }} />
+      <p style={{ fontSize: 13, color: "var(--premium-text-subtle)", lineHeight: 1.5 }}>
         不搜索图片和 PDF 内部文字，仅搜索手动填写的信息和文件名。
       </p>
     </div>
