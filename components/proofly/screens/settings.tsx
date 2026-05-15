@@ -146,8 +146,8 @@ function SettingToggle({
 
 export function SettingsScreen({ onNavigate }: SettingsScreenProps) {
   const [showBackupSheet, setShowBackupSheet] = useState(false)
-  const [showBackupConfirm, setShowBackupConfirm] = useState(false)
   const [backupDone, setBackupDone] = useState(false)
+  const [restoreStep, setRestoreStep] = useState<"picker" | "faceid" | "confirm" | null>(null)
   const [proExpired] = useState(false)
   const [showTrashSheet, setShowTrashSheet] = useState(false)
   const [showPrivacySheet, setShowPrivacySheet] = useState(false)
@@ -243,7 +243,7 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps) {
             <SettingRow
               icon={RotateCcw}
               label="备份恢复"
-              onClick={() => setShowBackupConfirm(true)}
+              onClick={() => setRestoreStep("picker")}
               iconBg="#F0EBFF"
               iconColor="#5856D6"
             />
@@ -360,8 +360,8 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps) {
               >
                 <FileDown size={22} strokeWidth={1.8} style={{ color: "#34C759" }} />
               </div>
-              <p style={{ fontSize: 18, fontWeight: 700, color: "#000000" }}>导出本地备份</p>
-              <p style={{ fontSize: 14, color: "#8E8E93", marginTop: 4 }}>备份保存在文件 App，可手动迁移到新设备</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: "#000000" }}>导出加密备份</p>
+              <p style={{ fontSize: 14, color: "#8E8E93", marginTop: 4 }}>备份文件加密保存，需密码或 Face ID 才能恢复</p>
             </div>
 
             <div className="px-4 py-3.5 mb-4" style={{ background: "#F2F2F7", borderRadius: 12 }}>
@@ -374,36 +374,24 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps) {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 mb-5">
-              <div className="px-3 py-3 text-center" style={{ background: "#F2F2F7", borderRadius: 10 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#8E8E93" }}>免费版</p>
-                <p style={{ fontSize: 12, color: "#8E8E93", lineHeight: 1.4, marginTop: 4 }}>基础备份，未加密</p>
-              </div>
-              <div
-                className="px-3 py-3 text-center"
-                style={{ background: "#EEF4FF", borderRadius: 10 }}
-              >
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#007AFF" }}>Pro</p>
-                <p style={{ fontSize: 12, color: "#8E8E93", lineHeight: 1.4, marginTop: 4 }}>加密备份，附件打包</p>
+            <div className="mb-5 mx-4 flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: "#EDFAF7", border: "0.5px solid #D4F5EE" }}>
+              <Fingerprint size={14} strokeWidth={2} style={{ color: "#14C8A8", flexShrink: 0, marginTop: 1 }} />
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#0D9B81" }}>加密保护</p>
+                <p style={{ fontSize: 12, color: "#0D9B81", opacity: 0.7, marginTop: 2, lineHeight: 1.4 }}>
+                  备份文件以 .proofly-backup 格式保存，使用 Face ID 和密码双重加密，无法在外部直接查看。
+                </p>
               </div>
             </div>
 
             {backupDone ? (
-              <div
-                className="w-full flex items-center justify-center gap-2 rounded-xl mb-2"
-                style={{ height: 50, background: "#EDFAF7" }}
-              >
-                <Check size={18} strokeWidth={2.5} style={{ color: "#34C759" }} />
-                <span style={{ fontSize: 17, fontWeight: 600, color: "#34C759" }}>已导出到文件 App</span>
+              <div className="w-full flex items-center justify-center gap-2 rounded-xl mb-2" style={{ height: 50, background: "#EDFAF7" }}>
+                <Check size={18} strokeWidth={2.5} style={{ color: "#14C8A8" }} />
+                <span style={{ fontSize: 17, fontWeight: 600, color: "#14C8A8" }}>已导出到文件 App</span>
               </div>
             ) : (
-              <button
-                className="ios-tap w-full flex items-center justify-center rounded-xl mb-2"
-                style={{ height: 50, background: "#34C759" }}
-                onClick={() => setBackupDone(true)}
-                aria-label="导出备份"
-              >
-                <span style={{ fontSize: 17, fontWeight: 600, color: "#FFFFFF" }}>导出备份</span>
+              <button className="ios-tap w-full flex items-center justify-center rounded-xl mb-2" style={{ height: 50, background: "#2563FF" }} onClick={() => setBackupDone(true)} aria-label="导出加密备份">
+                <span style={{ fontSize: 17, fontWeight: 600, color: "#FFFFFF" }}>导出加密备份</span>
               </button>
             )}
             <button
@@ -418,61 +406,98 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps) {
         </div>
       )}
 
-      {/* Backup restore confirmation */}
-      {showBackupConfirm && (
-        <div
-          className="absolute inset-0 z-50 flex items-end"
-          onClick={() => setShowBackupConfirm(false)}
-        >
+      {/* ── Backup restore: multi-step flow ── */}
+      {restoreStep && (
+        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setRestoreStep(null)}>
           <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
-          <div
-            className="relative w-full rounded-t-3xl px-5 pt-2 pb-10"
-            style={{ background: "#FFFFFF", boxShadow: "0 -4px 32px rgba(0,0,0,0.18)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative w-full rounded-t-3xl pt-2 pb-8" style={{ background: "#FFFFFF", boxShadow: "0 -4px 32px rgba(0,0,0,0.18)" }} onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5" />
-            <div className="flex flex-col items-center text-center mb-5">
-              <div
-                className="flex items-center justify-center mb-3"
-                style={{ width: 48, height: 48, borderRadius: 12, background: "#F0EBFF" }}
-              >
-                <RotateCcw size={22} strokeWidth={1.8} style={{ color: "#5856D6" }} />
-              </div>
-              <p style={{ fontSize: 18, fontWeight: 700, color: "#000000" }}>恢复备份？</p>
-              <p style={{ fontSize: 14, color: "#8E8E93", marginTop: 4 }}>恢复后将覆盖当前本地全部数据</p>
-            </div>
 
-            <div className="px-4 py-3 mb-3" style={{ background: "#F2F2F7", borderRadius: 12 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "#000000" }}>backup_2026-05-09.proofly</p>
-              <p style={{ fontSize: 12, color: "#8E8E93", marginTop: 2 }}>46 条记录 · 38 个附件 · 备份于 2026-05-09</p>
-            </div>
+            {/* Step 1: File picker */}
+            {restoreStep === "picker" && (
+              <>
+                <p className="font-bold text-[#101828] px-5 mb-4" style={{ fontSize: 18 }}>选择备份文件</p>
+                <p className="text-[#98A2B3] px-5 mb-4 leading-snug" style={{ fontSize: 14 }}>从「文件」App 中选择 .proofly-backup 格式的备份文件</p>
+                <div className="px-4 flex flex-col gap-2 mb-2">
+                  {[
+                    { name: "backup_2026-05-09.proofly-backup", date: "2026-05-09", size: "42.6 MB", records: 46, attachments: 38 },
+                    { name: "backup_2026-04-15.proofly-backup", date: "2026-04-15", size: "38.2 MB", records: 41, attachments: 32 },
+                  ].map((f) => (
+                    <button key={f.name} className="ios-tap w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left" style={{ background: "#F6F8FF" }} onClick={() => setRestoreStep("faceid")} aria-label={f.name}>
+                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 40, height: 40, borderRadius: 10, background: "#F0EBFF" }}>
+                        <RotateCcw size={18} strokeWidth={1.8} style={{ color: "#7C5CFF" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[#101828] truncate" style={{ fontSize: 14 }}>{f.name}</p>
+                        <p className="text-[#98A2B3]" style={{ fontSize: 12 }}>{f.records} 条记录 · {f.attachments} 个附件 · {f.size} · {f.date}</p>
+                      </div>
+                      <span style={{ fontSize: 12, color: "#2563FF", fontWeight: 500 }}>选择</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="px-4 mb-2">
+                  <button className="ios-tap w-full flex items-center justify-center gap-2 rounded-xl py-3" style={{ border: "1.5px dashed rgba(60,60,67,0.2)" }} aria-label="浏览文件">
+                    <span style={{ fontSize: 15, color: "#2563FF", fontWeight: 500 }}>📁 浏览「文件」App</span>
+                  </button>
+                </div>
+                <div className="px-4"><button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setRestoreStep(null)}>取消</button></div>
+              </>
+            )}
 
-            <div
-              className="flex items-start gap-2.5 px-4 py-3 mb-5"
-              style={{ background: "#FFF0F0", borderRadius: 12 }}
-            >
-              <AlertCircle size={14} strokeWidth={2} style={{ color: "#FF3B30", flexShrink: 0, marginTop: 1 }} />
-              <p style={{ fontSize: 13, color: "#CC2200", lineHeight: 1.5 }}>
-                恢复操作不可撤销。当前设备上的所有记录、对象、提醒和附件索引将被备份文件覆盖。建议先导出当前备份。
-              </p>
-            </div>
+            {/* Step 2: Face ID verification */}
+            {restoreStep === "faceid" && (
+              <>
+                <div className="flex flex-col items-center text-center px-5 mb-5">
+                  <div className="flex items-center justify-center mb-4" style={{ width: 64, height: 64, borderRadius: 20, background: "#EDFAF7" }}>
+                    <Fingerprint size={32} strokeWidth={1.5} style={{ color: "#14C8A8" }} />
+                  </div>
+                  <p className="font-bold text-[#101828]" style={{ fontSize: 18 }}>验证身份</p>
+                  <p className="text-[#98A2B3] mt-2 leading-snug" style={{ fontSize: 14 }}>备份文件已加密，需要使用 Face ID 或输入备份密码来解密</p>
+                </div>
+                <div className="px-4 mb-4">
+                  <div className="bg-[#F6F8FF] rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+                    <button className="ios-tap w-full flex items-center justify-between px-4 py-4" style={{ borderBottom: "0.5px solid #E8ECF4" }} onClick={() => setRestoreStep("confirm")}>
+                      <span className="font-medium text-[#101828]" style={{ fontSize: 15 }}>使用 Face ID</span>
+                      <Fingerprint size={16} style={{ color: "#14C8A8" }} />
+                    </button>
+                    <div className="flex items-center px-4" style={{ height: 48 }}>
+                      <span className="text-[#98A2B3] font-medium" style={{ fontSize: 13 }}>备份密码</span>
+                      <input className="flex-1 bg-transparent outline-none text-[#101828] text-right" style={{ fontSize: 14 }} placeholder="输入备份密码" type="password" />
+                    </div>
+                  </div>
+                </div>
+                <div className="px-4"><button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setRestoreStep("picker")}>返回</button></div>
+              </>
+            )}
 
-            <button
-              className="ios-tap w-full flex items-center justify-center rounded-xl mb-2"
-              style={{ height: 50, background: "#FF3B30" }}
-              onClick={() => setShowBackupConfirm(false)}
-              aria-label="确认恢复"
-            >
-              <span style={{ fontSize: 17, fontWeight: 600, color: "#FFFFFF" }}>确认恢复，覆盖当前数据</span>
-            </button>
-            <button
-              className="ios-tap w-full flex items-center justify-center rounded-xl"
-              style={{ height: 50, background: "#F2F2F7" }}
-              onClick={() => setShowBackupConfirm(false)}
-              aria-label="取消"
-            >
-              <span style={{ fontSize: 17, fontWeight: 600, color: "#000000" }}>取消</span>
-            </button>
+            {/* Step 3: Confirm restore */}
+            {restoreStep === "confirm" && (
+              <>
+                <div className="flex flex-col items-center text-center px-5 mb-5">
+                  <div className="flex items-center justify-center mb-3" style={{ width: 48, height: 48, borderRadius: 12, background: "#F0EBFF" }}>
+                    <RotateCcw size={22} strokeWidth={1.8} style={{ color: "#7C5CFF" }} />
+                  </div>
+                  <p className="font-bold text-[#101828]" style={{ fontSize: 18 }}>确认恢复备份</p>
+                  <p className="text-[#98A2B3] mt-1.5 leading-snug" style={{ fontSize: 14 }}>解密成功，即将从以下备份恢复数据</p>
+                </div>
+                <div className="px-4 py-3 mb-3 mx-4" style={{ background: "#F6F8FF", borderRadius: 12 }}>
+                  <p className="font-semibold text-[#101828]" style={{ fontSize: 14 }}>backup_2026-05-09.proofly-backup</p>
+                  <p className="text-[#98A2B3] mt-1" style={{ fontSize: 12 }}>46 条记录 · 38 个附件 · 3 个空间 · 2026-05-09</p>
+                </div>
+                <div className="mb-3 mx-4 flex items-start gap-2.5 px-4 py-3" style={{ background: "#FFF0F0", borderRadius: 12 }}>
+                  <AlertCircle size={14} strokeWidth={2} style={{ color: "#FF3B30", flexShrink: 0, marginTop: 1 }} />
+                  <div>
+                    <p className="font-semibold text-[#FF3B30]" style={{ fontSize: 13 }}>此操作不可撤销</p>
+                    <p className="text-[#CC2200] mt-0.5 leading-snug" style={{ fontSize: 12 }}>当前设备上的所有数据将被备份文件覆盖。建议先导出当前备份。</p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 px-4">
+                  <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#FF3B30", color: "#FFFFFF" }} onClick={() => setRestoreStep(null)}>确认恢复，覆盖当前数据</button>
+                  <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#2563FF" }} onClick={() => setRestoreStep(null)}>先导出当前备份</button>
+                  <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setRestoreStep(null)}>取消</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -87,9 +87,9 @@ export function SpaceEditor({ mode, initialName = "", initialEmoji = "📦", ini
               <span className="text-[#98A2B3] font-medium flex-shrink-0 mr-4" style={{ fontSize: 14, width: 56 }}>名称</span>
               <input className="flex-1 bg-transparent outline-none text-[#101828] text-right" style={{ fontSize: 15 }} placeholder={SPACE_TYPES.find((t) => t.id === selectedType)?.name || "资料箱名称"} value={spaceName} onChange={(e) => setSpaceName(e.target.value)} />
             </div>
-            <button className="ios-tap w-full flex items-center justify-between px-4" style={{ height: 56 }} onClick={() => setShowEmojiSheet(true)} aria-label="选择图标">
-              <span className="text-[#98A2B3] font-medium" style={{ fontSize: 14, width: 56 }}>图标</span>
-              <div className="flex items-center gap-2"><div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 10, background: "#EEF4FF" }}><span style={{ fontSize: 22 }}>{selectedEmoji}</span></div><ChevronRight size={16} strokeWidth={2} className="text-[#C8D0E8]" /></div>
+            <button className="ios-tap w-full flex items-center px-4" style={{ height: 56 }} onClick={() => setShowEmojiSheet(true)} aria-label="选择图标">
+              <span className="text-[#98A2B3] font-medium flex-shrink-0 mr-4" style={{ fontSize: 14, width: 56 }}>图标</span>
+              <div className="flex items-center gap-2 flex-1 justify-end"><div className="flex items-center justify-center" style={{ width: 36, height: 36, borderRadius: 10, background: "#EEF4FF" }}><span style={{ fontSize: 22 }}>{selectedEmoji}</span></div><ChevronRight size={16} strokeWidth={2} className="text-[#C8D0E8] flex-shrink-0" /></div>
             </button>
           </div>
         </div>

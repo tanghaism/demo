@@ -12,7 +12,7 @@ interface RecordDetailProps {
   onNavigate: (screen: string) => void
 }
 
-type AttachmentType = "image" | "pdf"
+type AttachmentType = "image" | "pdf" | "video" | "live"
 
 interface Attachment {
   id: number
@@ -23,7 +23,9 @@ interface Attachment {
 
 const initialAttachments: Attachment[] = [
   { id: 1, name: "macbook_invoice.pdf", size: "2.1 MB", type: "pdf" },
-  { id: 2, name: "IMG_receipt_box.jpg", size: "3.4 MB", type: "image" },
+  { id: 2, name: "IMG_60512.jpg", size: "3.4 MB", type: "image" },
+  { id: 3, name: "IMG_60511.MOV", size: "12.8 MB", type: "video" },
+  { id: 4, name: "IMG_60420.HEIC", size: "2.8 MB", type: "live" },
 ]
 
 type ToastState = { msg: string; variant: "success" | "error" } | null
@@ -63,9 +65,11 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
 
   const activeAttachment = attachments.find((a) => a.id === activeAttachmentId) ?? null
 
-  const iconForType = (type: AttachmentType) => {
-    if (type === "image") return { bg: "#EEF4FF", icon: <ImageIcon size={18} className="text-[#2563FF]" />, badge: "JPG", badgeColor: "#2563FF" }
-    return { bg: "#FFF0F0", icon: <FileText size={18} className="text-[#FF3B30]" />, badge: "PDF", badgeColor: "#FF3B30" }
+  const thumbnailForType = (type: AttachmentType) => {
+    if (type === "pdf") return { bg: "#FFF0F0", icon: <FileText size={18} className="text-[#FF3B30]" />, badge: "PDF", badgeColor: "#FF3B30" }
+    if (type === "video") return { bg: "#D8D0F0", icon: <span style={{ fontSize: 14, color: "#7C5CFF", fontWeight: 700 }}>▶</span>, badge: "视频", badgeColor: "#7C5CFF" }
+    if (type === "live") return { bg: "#FFE8A0", icon: <span style={{ fontSize: 14, color: "#CC9500", fontWeight: 700 }}>◎</span>, badge: "实况", badgeColor: "#CC9500" }
+    return { bg: "#C8D8F0", icon: <span style={{ fontSize: 16 }}>🏔</span>, badge: "JPG", badgeColor: "#2563FF" }
   }
 
   return (
@@ -85,17 +89,10 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
           <button
             className="ios-tap flex items-center justify-center"
             style={{ minWidth: 44, minHeight: 44 }}
-            aria-label="编辑记录"
-          >
-            <Edit2 size={18} strokeWidth={1.8} className="text-[#2563FF]" />
-          </button>
-          <button
-            className="ios-tap flex items-center justify-center"
-            style={{ minWidth: 44, minHeight: 44 }}
             onClick={() => setSheet("record")}
             aria-label="更多操作"
           >
-            <MoreHorizontal size={22} className="text-[#101828]" />
+            <MoreHorizontal size={22} strokeWidth={2} className="text-[#2563FF]" />
           </button>
         </div>
       </div>
@@ -189,7 +186,7 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
           ) : (
             <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
               {attachments.map((a, i) => {
-                const meta = iconForType(a.type)
+                const meta = thumbnailForType(a.type)
                 return (
                   <div
                     key={a.id}
@@ -197,20 +194,15 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
                     style={{ borderBottom: i < attachments.length - 1 ? "0.5px solid #F6F8FF" : "none" }}
                   >
                     <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center mr-3 flex-shrink-0"
-                      style={{ background: meta.bg }}
+                      className="rounded-xl flex items-center justify-center mr-3 flex-shrink-0"
+                      style={{ width: 44, height: 44, background: meta.bg }}
                     >
                       {meta.icon}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[#101828] truncate" style={{ fontSize: 14 }}>{a.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span
-                          className="px-1.5 py-px rounded font-semibold"
-                          style={{ fontSize: 10, background: `${meta.badgeColor}18`, color: meta.badgeColor }}
-                        >
-                          {meta.badge}
-                        </span>
+                        <span className="px-1.5 py-px rounded font-semibold" style={{ fontSize: 10, background: `${meta.badgeColor}18`, color: meta.badgeColor }}>{meta.badge}</span>
                         <span className="text-[#98A2B3]" style={{ fontSize: 12 }}>{a.size}</span>
                       </div>
                     </div>
@@ -278,7 +270,6 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
         <SheetOverlay onDismiss={() => setSheet(null)}>
           <div className="flex flex-col gap-1.5 px-4">
             <SheetItem icon={Edit2} label="编辑记录" color="#2563FF" onPress={() => setSheet(null)} />
-            <SheetItem icon={Bell} label="设置提醒" color="#FF9500" onPress={() => setSheet(null)} />
             <SheetItem
               icon={Trash2}
               label="删除记录"
@@ -300,9 +291,9 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
           >
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: iconForType(activeAttachment.type).bg }}
+              style={{ background: thumbnailForType(activeAttachment.type).bg }}
             >
-              {iconForType(activeAttachment.type).icon}
+              {thumbnailForType(activeAttachment.type).icon}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-[#101828] truncate" style={{ fontSize: 14 }}>{activeAttachment.name}</p>

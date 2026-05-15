@@ -2,448 +2,383 @@
 
 import { useState } from "react"
 import {
-  X, PenLine, Camera, FolderUp, ChevronDown, Layers, Image as ImageIcon, FileText,
-  CheckCircle2, AlertCircle, ImagePlus, RotateCcw,
+  X, Camera, FolderUp, ChevronDown, Layers, Image as ImageIcon, FileText,
+  CheckCircle2, AlertCircle, RotateCcw, PlusCircle, Check,
 } from "lucide-react"
 
 interface AddRecordProps {
   onClose: () => void
   onSave: () => void
-  initialMode?: "write" | "photo" | "import"
+  isEditing?: boolean
 }
 
-type Mode = "write" | "photo" | "import"
-type PhotoSub = "camera" | "album"
 type SaveResult = "success" | "batch-partial" | null
 
-export function AddRecord({ onClose, onSave, initialMode = "write" }: AddRecordProps) {
-  const [mode, setMode] = useState<Mode>(initialMode)
-  const [photoSub, setPhotoSub] = useState<PhotoSub>("camera")
-  const [expanded, setExpanded] = useState(false)
+export function AddRecord({ onClose, onSave, isEditing = false }: AddRecordProps) {
+  const [showDetails, setShowDetails] = useState(false)
   const [saveResult, setSaveResult] = useState<SaveResult>(null)
   const [cameraBlocked, setCameraBlocked] = useState(false)
   const [text, setText] = useState("")
-  const [batchMode, setBatchMode] = useState<"split" | "merge">("split")
   const [targetSpace, setTargetSpace] = useState("家庭资料箱")
-
-  const modes = [
-    { id: "write" as Mode, icon: PenLine, label: "写记录" },
-    { id: "photo" as Mode, icon: Camera, label: "拍照" },
-    { id: "import" as Mode, icon: FolderUp, label: "导入文件" },
-  ]
+  const [showPhotoSheet, setShowPhotoSheet] = useState(false)
+  const [showSpaceSheet, setShowSpaceSheet] = useState(false)
+  const [showObjectSheet, setShowObjectSheet] = useState(false)
+  const [showReminderSheet, setShowReminderSheet] = useState(false)
+  const [reminderType, setReminderType] = useState("保修到期")
+  const [reminderDate, setReminderDate] = useState("")
+  const [reminderAdvance, setReminderAdvance] = useState("7")
+  const [customReminderName, setCustomReminderName] = useState("")
+  const [selectedObject, setSelectedObject] = useState("")
 
   const handleSave = () => {
-    if (mode === "import") {
-      setSaveResult("batch-partial")
-    } else {
-      setSaveResult("success")
-      setTimeout(() => {
-        setSaveResult(null)
-        onSave()
-      }, 1800)
-    }
+    setSaveResult("success")
+    setTimeout(() => { setSaveResult(null); onSave() }, 1600)
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#F2F2F7", paddingTop: 54 }}>
-
-      {/* iOS modal nav bar */}
-      <div
-        className="flex items-center justify-between px-4 pt-2 pb-3"
-        style={{ background: "#FFFFFF", borderBottom: "0.5px solid rgba(60,60,67,0.29)" }}
-      >
-        <button
-          className="ios-tap"
-          style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "flex-start" }}
-          onClick={onClose}
-          aria-label="关闭"
-        >
-          <X size={18} strokeWidth={2.5} style={{ color: "#007AFF" }} />
+    <div className="flex flex-col h-full" style={{ background: "#F6F8FF", paddingTop: 54 }}>
+      {/* ── Nav bar ── */}
+      <div className="flex items-center justify-between px-4 pt-2 pb-3" style={{ background: "#F6F8FF", borderBottom: "0.5px solid #E8ECF4" }}>
+        <button className="ios-tap flex items-center" style={{ minHeight: 44, minWidth: 60 }} onClick={onClose} aria-label="取消">
+          <span className="text-[#2563FF] font-medium" style={{ fontSize: 17 }}>取消</span>
         </button>
-        <h1 style={{ fontSize: 17, fontWeight: 600, color: "#000000" }}>添加记录</h1>
-        <div style={{ width: 44 }} />
-      </div>
-
-      {/* Space indicator */}
-      <div
-        className="flex items-center justify-center gap-1.5 px-4 py-1.5"
-        style={{ background: "#F2F2F7", borderBottom: "0.5px solid rgba(60,60,67,0.10)" }}
-      >
-        <span className="text-[#98A2B3]" style={{ fontSize: 11 }}>添加到</span>
-        <span className="font-semibold text-[#101828]" style={{ fontSize: 12 }}>🏠 {targetSpace}</span>
-        <button
-          className="ios-tap flex items-center justify-center rounded"
-          style={{ width: 24, height: 24 }}
-          onClick={() => {
-            const spaces = ["家庭资料箱", "经营资料箱", "事业资料箱"]
-            const idx = spaces.indexOf(targetSpace)
-            setTargetSpace(spaces[(idx + 1) % spaces.length])
-          }}
-          aria-label="切换资料箱"
-        >
-          <Layers size={11} strokeWidth={2} style={{ color: "#2563FF" }} />
+        <h1 className="font-semibold text-[#101828] text-center" style={{ fontSize: 17 }}>添加记录</h1>
+        <button className="ios-tap flex items-center justify-end" style={{ minHeight: 44, minWidth: 60 }} onClick={handleSave} aria-label="保存">
+          <span className="font-semibold" style={{ fontSize: 17, color: "#2563FF" }}>保存</span>
         </button>
       </div>
 
-      {/* iOS native segmented control */}
-      <div className="px-4 pt-3 pb-2" style={{ background: "#F2F2F7" }}>
-        <div
-          className="flex p-0.5 rounded-lg"
-          style={{ background: "rgba(118,118,128,0.18)" }}
-        >
-          {modes.map((m) => {
-            const Icon = m.icon
-            const active = mode === m.id
-            return (
-              <button
-                key={m.id}
-                onClick={() => setMode(m.id)}
-                className="ios-tap flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md transition-all"
-                style={{
-                  background: active ? "#FFFFFF" : "transparent",
-                  boxShadow: active ? "0 1px 3px rgba(0,0,0,0.12), 0 0.5px 1px rgba(0,0,0,0.08)" : "none",
-                }}
-                aria-label={m.label}
-              >
-                <Icon
-                  size={13}
-                  strokeWidth={active ? 2.2 : 1.8}
-                  style={{ color: active ? "#000000" : "#8E8E93" }}
-                />
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: active ? 600 : 400,
-                    color: active ? "#000000" : "#8E8E93",
-                  }}
-                >
-                  {m.label}
-                </span>
-              </button>
-            )
-          })}
+      {/* ── Space indicator ── */}
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#98A2B3] font-medium" style={{ fontSize: 13 }}>添加到</span>
+          <span className="font-semibold text-[#101828]" style={{ fontSize: 13 }}>🏠 {targetSpace}</span>
         </div>
+        {!isEditing && (
+          <button className="ios-tap flex items-center gap-1 rounded-lg px-2.5 py-1.5" style={{ background: "#EEF4FF" }} onClick={() => setShowSpaceSheet(true)} aria-label="切换资料箱">
+            <Layers size={12} strokeWidth={2} style={{ color: "#2563FF" }} />
+            <span className="font-medium text-[#2563FF]" style={{ fontSize: 12 }}>切换</span>
+          </button>
+        )}
       </div>
 
-      {/* Content */}
+      {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto hide-scrollbar">
+        <div className="px-4 flex flex-col gap-3">
 
-        {/* --- Write mode --- */}
-        {mode === "write" && (
-          <div className="px-4 pt-2">
-            <div className="px-4 py-3" style={{ background: "#FFFFFF", borderRadius: 12 }}>
-              <textarea
-                className="w-full bg-transparent text-[#000000] resize-none outline-none"
-                style={{ fontSize: 16, minHeight: 130, lineHeight: 1.5 }}
-                placeholder="快速记一点..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
-            </div>
-            <p style={{ fontSize: 13, color: "#8E8E93", marginTop: 6, paddingLeft: 4 }}>先保存，晚点再整理</p>
+          {/* Add photo + file — side by side */}
+          <div className="flex gap-3">
+            <button className="ios-tap bg-white rounded-2xl flex flex-col items-center gap-2 py-4 flex-1" style={{ border: "0.5px solid #E8ECF4" }} onClick={() => setShowPhotoSheet(true)} aria-label="添加照片">
+              <div className="flex items-center justify-center" style={{ width: 44, height: 44, borderRadius: 12, background: "#EDFAF7" }}>
+                <Camera size={22} strokeWidth={1.6} style={{ color: "#14C8A8" }} />
+              </div>
+              <span className="font-medium text-[#101828]" style={{ fontSize: 13 }}>添加照片</span>
+            </button>
+            <button className="ios-tap bg-white rounded-2xl flex flex-col items-center gap-2 py-4 flex-1" style={{ border: "0.5px solid #E8ECF4" }} aria-label="添加文件">
+              <div className="flex items-center justify-center" style={{ width: 44, height: 44, borderRadius: 12, background: "#F0EBFF" }}>
+                <FolderUp size={22} strokeWidth={1.6} style={{ color: "#7C5CFF" }} />
+              </div>
+              <span className="font-medium text-[#101828]" style={{ fontSize: 13 }}>添加文件</span>
+            </button>
           </div>
-        )}
 
-        {/* --- Photo mode --- */}
-        {mode === "photo" && (
-          <div className="px-4 pt-2 flex flex-col gap-3">
-            {/* Sub-mode toggle — iOS segmented */}
-            <div
-              className="flex p-0.5 rounded-lg"
-              style={{ background: "rgba(118,118,128,0.18)" }}
-            >
-              {(["camera", "album"] as PhotoSub[]).map((s) => (
-                <button
-                  key={s}
-                  className="ios-tap flex-1 py-1.5 rounded-md text-center transition-all font-medium"
-                  style={{
-                    fontSize: 13,
-                    background: photoSub === s ? "#FFFFFF" : "transparent",
-                    color: photoSub === s ? "#000000" : "#8E8E93",
-                    fontWeight: photoSub === s ? 600 : 400,
-                    boxShadow: photoSub === s ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
-                  }}
-                  onClick={() => {
-                    setPhotoSub(s)
-                    if (s === "camera") setCameraBlocked(false)
-                  }}
-                  aria-label={s === "camera" ? "拍照" : "从相册"}
-                >
-                  {s === "camera" ? "拍照" : "从相册"}
+          {/* Photo thumbnails */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { name: "IMG_60512", size: "2.4 MB", color: "#EEF4FF", media: "photo" as const },
+              { name: "IMG_60511", size: "3.1 MB", color: "#FFF3E0", media: "live" as const },
+              { name: "IMG_60510", size: "1.8 MB", color: "#EDFAF7", media: "video" as const },
+              { name: "IMG_60509", size: "4.2 MB", color: "#F0EBFF", media: "video" as const },
+            ].map((img, i) => (
+              <div key={img.name} className="ios-tap relative bg-white rounded-xl overflow-hidden" style={{ aspectRatio: "1", border: "0.5px solid #E8ECF4" }} role="button" aria-label={`预览 ${img.name}`}>
+                <div className="absolute inset-0 flex items-center justify-center" style={{ background: img.color }}>
+                  <ImageIcon size={28} strokeWidth={1.2} style={{ color: "#C8D0E8" }} />
+                </div>
+                {img.media === "video" && (
+                  <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 rounded-md px-1.5 py-0.5" style={{ background: "rgba(0,0,0,0.55)", fontSize: 9, color: "#FFFFFF", fontWeight: 600 }}>
+                    <span>▶</span><span>视频</span>
+                  </div>
+                )}
+                {img.media === "live" && (
+                  <div className="absolute top-1.5 left-1.5 flex items-center gap-0.5 rounded-md px-1.5 py-0.5" style={{ background: "rgba(0,0,0,0.55)", fontSize: 9, color: "#FFD60A", fontWeight: 600 }}>
+                    <span>◎</span><span>实况</span>
+                  </div>
+                )}
+                <div className="absolute bottom-0 inset-x-0 px-2 py-1.5" style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.5))" }}>
+                  <p className="text-white font-medium truncate" style={{ fontSize: 10 }}>{img.name}</p>
+                </div>
+                <div className="ios-tap absolute top-1 right-1 flex items-center justify-center rounded-full" style={{ width: 20, height: 20, background: "rgba(0,0,0,0.5)" }} onClick={(e) => e.stopPropagation()} role="button" aria-label={`删除 ${img.name}`}>
+                  <X size={10} strokeWidth={2.5} style={{ color: "#FFFFFF" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* File rows */}
+          <div className="flex items-center gap-3 px-4 py-3 bg-white rounded-2xl" style={{ border: "0.5px solid #E8ECF4" }}>
+            <div className="flex items-center justify-center flex-shrink-0" style={{ width: 40, height: 40, borderRadius: 10, background: "#FFF0F0" }}><FileText size={18} strokeWidth={1.8} style={{ color: "#FF3B30" }} /></div>
+            <div className="flex-1 min-w-0"><p className="font-medium text-[#101828] truncate" style={{ fontSize: 14 }}>租赁合同_2026.pdf</p><p className="text-[#98A2B3]" style={{ fontSize: 12 }}>PDF · 1.8 MB</p></div>
+            <button className="ios-tap p-1.5 rounded-lg" style={{ background: "#FFF0F0" }} aria-label="移除"><X size={14} strokeWidth={2.5} style={{ color: "#FF3B30" }} /></button>
+          </div>
+
+          {/* ── Optional fields ── */}
+          {!showDetails ? (
+            <button className="ios-tap flex items-center gap-2 py-3" onClick={() => setShowDetails(true)} aria-label="添加详细信息">
+              <div className="flex items-center justify-center" style={{ width: 24, height: 24, borderRadius: 7, background: "#EEF4FF" }}>
+                <PlusCircle size={13} strokeWidth={2} style={{ color: "#2563FF" }} />
+              </div>
+              <span className="font-medium text-[#2563FF]" style={{ fontSize: 14 }}>添加详细信息</span>
+              <span className="text-[#C8D0E8]" style={{ fontSize: 12 }}>可选</span>
+            </button>
+          ) : (
+            <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "0.5px solid #F6F8FF" }}>
+                <span className="font-semibold text-[#101828]" style={{ fontSize: 14 }}>详细信息</span>
+                <button className="ios-tap" onClick={() => setShowDetails(false)} aria-label="收起">
+                  <ChevronDown size={16} strokeWidth={2.5} style={{ color: "#98A2B3", transform: "rotate(180deg)" }} />
                 </button>
-              ))}
-            </div>
-
-            {/* Camera blocked banner */}
-            {cameraBlocked && (
-              <div
-                className="flex items-start gap-2.5 px-4 py-3"
-                style={{ background: "#FFF8EC" }}
-              >
-                <AlertCircle size={15} strokeWidth={2} style={{ color: "#FF9500", flexShrink: 0, marginTop: 1 }} />
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "#8A5F00" }}>相机不可用</p>
-                  <p style={{ fontSize: 13, color: "#B07D00" }}>仍可从相册或文件添加</p>
-                </div>
               </div>
-            )}
-
-            {/* Drop zone */}
-            <button
-              className="ios-tap rounded-2xl flex flex-col items-center justify-center gap-3"
-              style={{
-                height: 148,
-                border: "1.5px dashed rgba(60,60,67,0.2)",
-                background: "#FFFFFF",
-              }}
-              onClick={() => { if (photoSub === "camera") setCameraBlocked(true) }}
-              aria-label={photoSub === "camera" ? "开启相机" : "选择相册"}
-            >
-              <div
-                className="flex items-center justify-center"
-                style={{ width: 48, height: 48, borderRadius: 12, background: photoSub === "camera" ? "#EDFAF7" : "#EEF4FF" }}
-              >
-                {photoSub === "camera"
-                  ? <Camera size={24} strokeWidth={1.6} style={{ color: "#34C759" }} />
-                  : <ImagePlus size={24} strokeWidth={1.6} style={{ color: "#007AFF" }} />
-                }
-              </div>
-              <p style={{ fontSize: 15, color: "#8E8E93", fontWeight: 500 }}>
-                {photoSub === "camera" ? "点击开启相机" : "从相册选择图片"}
-              </p>
-            </button>
-
-            {/* Attached photo */}
-            <div className="flex items-center gap-3 px-4 py-3" style={{ background: "#FFFFFF", borderRadius: 12 }}>
-              <div
-                className="flex items-center justify-center flex-shrink-0"
-                style={{ width: 44, height: 44, borderRadius: 10, background: "#EEF4FF" }}
-              >
-                <ImageIcon size={20} strokeWidth={1.8} style={{ color: "#007AFF" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p style={{ fontSize: 15, color: "#000000", fontWeight: 500 }}>IMG_20260512.jpg</p>
-                <p style={{ fontSize: 13, color: "#8E8E93" }}>2.4 MB</p>
-              </div>
-              <button className="ios-tap p-1" aria-label="移除">
-                <X size={16} strokeWidth={2.5} style={{ color: "#8E8E93" }} />
-              </button>
-            </div>
-
-            <p style={{ fontSize: 13, color: "#8E8E93", paddingLeft: 4 }}>不识别文件内容，仅保存本地副本</p>
-          </div>
-        )}
-
-        {/* --- Import mode --- */}
-        {mode === "import" && (
-          <div className="px-4 pt-2 flex flex-col gap-3">
-            <button
-              className="ios-tap rounded-2xl flex flex-col items-center justify-center gap-3"
-              style={{
-                height: 130,
-                border: "1.5px dashed rgba(60,60,67,0.2)",
-                background: "#FFFFFF",
-              }}
-              aria-label="导入文件"
-            >
-              <div
-                className="flex items-center justify-center"
-                style={{ width: 48, height: 48, borderRadius: 12, background: "#F0EBFF" }}
-              >
-                <FolderUp size={24} strokeWidth={1.6} style={{ color: "#5856D6" }} />
-              </div>
-              <p style={{ fontSize: 15, color: "#8E8E93", fontWeight: 500 }}>从文件 App 添加 PDF 或图片</p>
-            </button>
-
-            {/* Sample PDF */}
-            <div className="flex items-center gap-3 px-4 py-3" style={{ background: "#FFFFFF", borderRadius: 12 }}>
-              <div
-                className="flex items-center justify-center flex-shrink-0"
-                style={{ width: 44, height: 44, borderRadius: 10, background: "#FFF0F0" }}
-              >
-                <FileText size={20} strokeWidth={1.8} style={{ color: "#FF3B30" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p style={{ fontSize: 15, color: "#000000", fontWeight: 500 }}>租赁合同_2026.pdf</p>
-                <p style={{ fontSize: 13, color: "#8E8E93" }}>PDF · 1.8 MB</p>
-              </div>
-              <button className="ios-tap p-1" aria-label="移除">
-                <X size={16} strokeWidth={2.5} style={{ color: "#8E8E93" }} />
-              </button>
-            </div>
-
-            {/* Batch import mode — iOS segmented */}
-            <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
-              <p className="px-4 pt-3 pb-2" style={{ fontSize: 13, color: "#8E8E93", fontWeight: 500 }}>多文件导入方式</p>
-              <div className="px-4 pb-3">
-                <div
-                  className="flex p-0.5 rounded-lg"
-                  style={{ background: "rgba(118,118,128,0.18)" }}
-                >
-                  {(["split", "merge"] as const).map((bm) => (
-                    <button
-                      key={bm}
-                      className="ios-tap flex-1 py-1.5 rounded-md text-center transition-all"
-                      style={{
-                        fontSize: 13,
-                        background: batchMode === bm ? "#FFFFFF" : "transparent",
-                        color: batchMode === bm ? "#000000" : "#8E8E93",
-                        fontWeight: batchMode === bm ? 600 : 400,
-                        boxShadow: batchMode === bm ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
-                      }}
-                      onClick={() => setBatchMode(bm)}
-                      aria-label={bm === "split" ? "每个文件一条记录" : "合并为一条记录"}
-                    >
-                      {bm === "split" ? "每个文件一条" : "合并为一条"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <p style={{ fontSize: 13, color: "#8E8E93", paddingLeft: 4 }}>不识别文件内容，仅保存本地副本</p>
-          </div>
-        )}
-
-        {/* Collapsible optional fields */}
-        <div className="px-4 mt-3">
-          <div style={{ background: "#FFFFFF", borderRadius: 12, overflow: "hidden" }}>
-          <button
-            className="ios-tap w-full flex items-center justify-between px-4 py-3.5"
-            onClick={() => setExpanded(!expanded)}
-            aria-label="继续整理"
-          >
-            <span style={{ fontSize: 15, color: "#8E8E93", fontWeight: 500 }}>继续整理 · 可选字段</span>
-            <ChevronDown
-              size={16}
-              strokeWidth={2.5}
-              style={{
-                color: "#8E8E93",
-                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s",
-              }}
-            />
-          </button>
-
-          {expanded && (
-            <div className="overflow-hidden">
-              {[
-                { label: "标题", placeholder: "给这条记录起个名字" },
-                { label: "类型", placeholder: "发票、合同、处方..." },
-                { label: "日期", placeholder: "选择日期" },
-                { label: "金额", placeholder: "¥ 0.00" },
-                { label: "对方名称", placeholder: "商家、机构或人名" },
-                { label: "标签", placeholder: "添加标签" },
-              ].map((field, i, arr) => (
-                <div
-                  key={field.label}
-                  className="flex items-center px-4"
-                  style={{
-                    height: 44,
-                    borderBottom: i < arr.length - 1 ? "0.5px solid rgba(60,60,67,0.12)" : "none",
-                  }}
-                >
-                  <span
-                    className="flex-shrink-0"
-                    style={{ fontSize: 15, fontWeight: 500, color: "#000000", width: 76 }}
-                  >
-                    {field.label}
-                  </span>
-                  <input
-                    className="flex-1 bg-transparent outline-none"
-                    style={{ fontSize: 15, color: "#3A3A3C" }}
-                    placeholder={field.placeholder}
-                  />
+              {([
+                { label: "标题", placeholder: "给这条记录起个名字", type: "text" as const },
+                { label: "类型", placeholder: "发票、合同、处方…", type: "text" as const },
+                { label: "日期", placeholder: "", type: "date" as const },
+                { label: "金额", placeholder: "¥ 0.00", type: "text" as const },
+                { label: "对方名称", placeholder: "商家、机构或人名", type: "text" as const },
+                { label: "标签", placeholder: "添加标签", type: "text" as const },
+              ] as const).map((field, i, arr) => (
+                <div key={field.label} className="flex items-center px-4" style={{ height: 46, borderBottom: i < arr.length - 1 ? "0.5px solid #F6F8FF" : "none" }}>
+                  <span className="text-[#98A2B3] font-medium flex-shrink-0 mr-4" style={{ fontSize: 14, width: 64 }}>{field.label}</span>
+                  {field.type === "date" ? (
+                    <input type="date" className="flex-1 bg-transparent outline-none text-[#101828] text-right" style={{ fontSize: 14, colorScheme: "light" }} />
+                  ) : (
+                    <input className="flex-1 bg-transparent outline-none text-[#101828] text-right" style={{ fontSize: 14 }} placeholder={field.placeholder} />
+                  )}
                 </div>
               ))}
+              <button className="ios-tap w-full flex items-center px-4" style={{ height: 46, borderBottom: "0.5px solid #F6F8FF" }} onClick={() => setShowObjectSheet(true)} aria-label="关联对象">
+                <span className="text-[#98A2B3] font-medium flex-shrink-0 mr-4" style={{ fontSize: 14, width: 64 }}>关联对象</span>
+                {selectedObject ? (
+                  <div className="flex-1 flex items-center justify-end gap-2">
+                    <span className="text-[#101828] font-medium truncate" style={{ fontSize: 13 }}>{selectedObject}</span>
+                    <div className="ios-tap flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 18, height: 18, background: "#E5E5EA" }} onClick={(e) => { e.stopPropagation(); setSelectedObject("") }} role="button" aria-label="清除关联对象">
+                      <X size={10} strokeWidth={2.5} style={{ color: "#8E8E93" }} />
+                    </div>
+                  </div>
+                ) : (
+                  <span className="flex-1 text-right text-[#98A2B3]" style={{ fontSize: 14 }}>选择已保存的对象</span>
+                )}
+              </button>
+              <button className="ios-tap w-full flex items-center px-4" style={{ height: 46 }} onClick={() => setShowReminderSheet(true)} aria-label="到期提醒">
+                <span className="text-[#98A2B3] font-medium flex-shrink-0 mr-4" style={{ fontSize: 14, width: 64 }}>到期提醒</span>
+                {reminderDate ? (
+                  <div className="flex-1 flex items-center justify-end gap-2">
+                    <span className="text-[#101828] font-medium truncate" style={{ fontSize: 13 }}>
+                      {reminderType === "自定义" ? (customReminderName || "自定义提醒") : reminderType} · {reminderDate}
+                    </span>
+                    <div className="ios-tap flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 18, height: 18, background: "#E5E5EA" }} onClick={(e) => { e.stopPropagation(); setReminderDate(""); setReminderType("保修到期"); setReminderAdvance("7"); setCustomReminderName("") }} role="button" aria-label="清除到期提醒">
+                      <X size={10} strokeWidth={2.5} style={{ color: "#8E8E93" }} />
+                    </div>
+                  </div>
+                ) : (
+                  <span className="flex-1 text-right text-[#98A2B3]" style={{ fontSize: 14 }}>设置提醒日期</span>
+                )}
+              </button>
+              {/* Notes — last */}
+              <div className="px-4 py-3">
+                <textarea
+                  className="w-full bg-transparent text-[#101828] resize-none outline-none"
+                  style={{ fontSize: 14, minHeight: 72, lineHeight: 1.5 }}
+                  placeholder="写点备注…"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+              </div>
             </div>
           )}
-          </div>{/* end white card */}
+
+          <div style={{ height: 20 }} />
         </div>
-
-        <div style={{ height: 160 }} />
       </div>
 
-      {/* Bottom CTA — iOS style */}
-      <div
-        className="absolute bottom-0 left-0 right-0 px-4 pb-7 pt-3"
-        style={{
-          background: "rgba(242,242,247,0.96)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderTop: "0.5px solid rgba(60,60,67,0.12)",
-        }}
-      >
-        <button
-          className="ios-tap w-full flex items-center justify-center rounded-xl font-semibold text-white mb-2"
-          style={{ height: 50, fontSize: 17, background: "#007AFF" }}
-          onClick={handleSave}
-          aria-label="直接保存"
-        >
-          直接保存
-        </button>
-        <button
-          className="ios-tap w-full flex items-center justify-center py-3"
-          style={{ fontSize: 15, color: "#007AFF", fontWeight: 500 }}
-          onClick={() => setExpanded(true)}
-          aria-label="保存并继续整理"
-        >
-          保存并继续整理
-        </button>
-      </div>
-
-      {/* Save success toast */}
+      {/* ── Save success toast ── */}
       {saveResult === "success" && (
-        <div
-          className="absolute inset-x-6 top-20 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl"
-          style={{ background: "#1C1C1E", boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}
-        >
-          <CheckCircle2 size={16} strokeWidth={2} style={{ color: "#34C759" }} />
-          <p style={{ fontSize: 14, color: "#FFFFFF", fontWeight: 500 }}>已保存到本地</p>
+        <div className="absolute inset-x-6 top-20 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: "#101828", boxShadow: "0 8px 24px rgba(16,24,40,0.3)" }}>
+          <CheckCircle2 size={16} strokeWidth={2} style={{ color: "#14C8A8" }} />
+          <p className="flex-1 text-white font-medium" style={{ fontSize: 14 }}>已保存到 {targetSpace}</p>
         </div>
       )}
 
-      {/* Batch partial result */}
-      {saveResult === "batch-partial" && (
-        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setSaveResult(null)}>
+      {/* ── Camera permission denied sheet ── */}
+      {cameraBlocked && (
+        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setCameraBlocked(false)}>
           <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
-          <div
-            className="relative w-full rounded-t-3xl px-5 pt-2 pb-10"
-            style={{ background: "#FFFFFF", boxShadow: "0 -4px 32px rgba(0,0,0,0.12)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative w-full rounded-t-3xl pt-2 pb-10" style={{ background: "#FFFFFF", boxShadow: "0 -4px 32px rgba(0,0,0,0.12)" }} onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5" />
-            <div className="flex items-start gap-3 mb-5">
-              <div
-                className="flex items-center justify-center flex-shrink-0"
-                style={{ width: 40, height: 40, borderRadius: 10, background: "#FFF3E0" }}
-              >
-                <AlertCircle size={20} strokeWidth={2} style={{ color: "#FF9500" }} />
-              </div>
-              <div>
-                <p style={{ fontSize: 17, fontWeight: 600, color: "#000000" }}>已导入 3 项，1 项失败</p>
-                <p style={{ fontSize: 14, color: "#8E8E93", marginTop: 3, lineHeight: 1.4 }}>
-                  contract_draft.pdf 无法读取，可能已损坏
-                </p>
+            <div className="flex flex-col items-center text-center px-5 mb-5">
+              <div className="flex items-center justify-center mb-3" style={{ width: 48, height: 48, borderRadius: 14, background: "#FFF3E0" }}><AlertCircle size={22} strokeWidth={1.8} style={{ color: "#FF9500" }} /></div>
+              <p className="font-bold text-[#101828]" style={{ fontSize: 18 }}>无法访问相机</p>
+              <p className="text-[#98A2B3] mt-1.5 leading-snug" style={{ fontSize: 14 }}>请在 iPhone「设置」→「隐私与安全性」→「相机」中允许凭保访问相机</p>
+            </div>
+            <div className="flex flex-col gap-2 px-4">
+              <button className="ios-tap w-full rounded-2xl font-semibold text-white" style={{ height: 50, fontSize: 17, background: "#2563FF" }} onClick={() => setCameraBlocked(false)}>从相册选取</button>
+              <button className="ios-tap w-full rounded-2xl font-medium" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setCameraBlocked(false)}>取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Space picker sheet ── */}
+      {showSpaceSheet && (
+        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setShowSpaceSheet(false)}>
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
+          <div className="relative w-full bg-white rounded-t-3xl pt-2 pb-8" style={{ boxShadow: "0 -4px 32px rgba(0,0,0,0.12)", maxHeight: "80%" }} onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5" />
+            <div className="px-5 mb-4"><h2 className="font-bold text-[#101828]" style={{ fontSize: 18 }}>选择资料箱</h2></div>
+            <div className="px-4 mb-3">
+              <div className="bg-[#F6F8FF] rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+                {[
+                  { emoji: "🏠", name: "家庭资料箱", desc: "房屋、物品、保修、合同、健康和老幼照护资料", records: 46, reminders: 5, updated: "今天" },
+                  { emoji: "🧾", name: "经营资料箱", desc: "客户、项目、票据和证照", records: 128, reminders: 9, updated: "昨天" },
+                  { emoji: "💼", name: "事业资料箱", desc: "合同、绩效、证书和求职资料", records: 32, reminders: 3, updated: "3 天前" },
+                ].map((space, i, arr) => {
+                  const isActive = space.name === targetSpace
+                  return (
+                    <button key={space.name} className="ios-tap w-full flex items-start px-4 py-3.5 text-left" style={{ borderBottom: i < arr.length - 1 ? "0.5px solid #E8ECF4" : "none", background: isActive ? "#EEF4FF" : "transparent" }} onClick={() => { setTargetSpace(space.name); setShowSpaceSheet(false) }} aria-label={space.name}>
+                      <div className="flex items-center justify-center flex-shrink-0 mr-3 mt-0.5" style={{ width: 40, height: 40, borderRadius: 10, background: isActive ? "#D6E4FF" : "#EEF4FF" }}><span style={{ fontSize: 22 }}>{space.emoji}</span></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2"><span className="font-semibold text-[#101828]" style={{ fontSize: 15 }}>{space.name}</span>{isActive && (<span className="px-1.5 rounded-full font-semibold" style={{ fontSize: 10, background: "#2563FF", color: "white", paddingTop: 1, paddingBottom: 1 }}>当前</span>)}</div>
+                        <p className="text-[#98A2B3] mt-0.5 leading-snug" style={{ fontSize: 12 }}>{space.desc}</p>
+                        <div className="flex items-center gap-3 mt-1.5"><span className="text-[#667085] font-medium" style={{ fontSize: 12 }}>{space.records} 条记录</span>{space.reminders > 0 && (<span className="text-[#FF9500] font-medium" style={{ fontSize: 12 }}>{space.reminders} 个提醒</span>)}{space.updated && (<span className="text-[#C8D0E8]" style={{ fontSize: 11 }}>更新于{space.updated}</span>)}</div>
+                      </div>
+                      {isActive && (<Check size={18} strokeWidth={2.5} className="text-[#2563FF] flex-shrink-0 mt-1" />)}
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            <button
-              className="ios-tap w-full flex items-center justify-center gap-2 rounded-xl font-semibold text-white mb-2"
-              style={{ height: 50, background: "#FF9500" }}
-              onClick={() => setSaveResult(null)}
-              aria-label="重试失败项"
-            >
-              <RotateCcw size={16} strokeWidth={2} />
-              <span style={{ fontSize: 17 }}>重试失败项</span>
-            </button>
-            <button
-              className="ios-tap w-full flex items-center justify-center py-3"
-              style={{ fontSize: 17, color: "#8E8E93", fontWeight: 500 }}
-              onClick={() => { setSaveResult(null); onSave() }}
-              aria-label="忽略，继续"
-            >
-              忽略，继续
-            </button>
+            <div className="px-4"><button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setShowSpaceSheet(false)}>取消</button></div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Object selection sheet ── */}
+      {showObjectSheet && (
+        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setShowObjectSheet(false)}>
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
+          <div className="relative w-full bg-white rounded-t-3xl pt-2 pb-8" style={{ boxShadow: "0 -4px 32px rgba(0,0,0,0.12)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5" />
+            <p className="font-bold text-[#101828] px-5 mb-3" style={{ fontSize: 18 }}>选择关联对象</p>
+            <div className="px-4 mb-3">
+              <div className="bg-[#F6F8FF] rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+                {[
+                  { emoji: "💻", name: "MacBook Pro 14", type: "物品", space: "家庭资料箱" },
+                  { emoji: "🏠", name: "徐汇租住房", type: "房屋", space: "家庭资料箱" },
+                  { emoji: "👴", name: "父亲健康档案", type: "健康档案", space: "家庭资料箱" },
+                  { emoji: "👶", name: "小宝健康档案", type: "健康档案", space: "家庭资料箱" },
+                  { emoji: "📁", name: "林先生设计项目", type: "项目", space: "经营资料箱" },
+                  { emoji: "🏢", name: "上海分店", type: "店铺", space: "经营资料箱" },
+                  { emoji: "💼", name: "当前公司", type: "公司", space: "事业资料箱" },
+                  { emoji: "🎓", name: "高级前端证书", type: "证书", space: "事业资料箱" },
+                ].map((obj, i, arr) => (
+                  <button key={obj.name} className="ios-tap w-full flex items-center px-4 py-3 text-left" style={{ borderBottom: i < arr.length - 1 ? "0.5px solid #E8ECF4" : "none" }} onClick={() => { setSelectedObject(obj.name); setShowObjectSheet(false) }} aria-label={obj.name}>
+                    <div className="flex items-center justify-center flex-shrink-0 mr-3" style={{ width: 32, height: 32, borderRadius: 8, background: "#EEF4FF" }}><span style={{ fontSize: 18 }}>{obj.emoji}</span></div>
+                    <div className="flex-1 min-w-0"><p className="font-medium text-[#101828]" style={{ fontSize: 14 }}>{obj.name}</p><div className="flex items-center gap-1.5"><span className="text-[#98A2B3]" style={{ fontSize: 11 }}>{obj.type}</span><span className="text-[#C8D0E8]" style={{ fontSize: 10 }}>·</span><span className="text-[#C8D0E8]" style={{ fontSize: 11 }}>{obj.space}</span></div></div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="px-4"><button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setShowObjectSheet(false)}>取消</button></div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reminder config sheet ── */}
+      {showReminderSheet && (
+        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setShowReminderSheet(false)}>
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
+          <div className="relative w-full bg-white rounded-t-3xl pt-2 pb-8" style={{ boxShadow: "0 -4px 32px rgba(0,0,0,0.12)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5" />
+            <p className="font-bold text-[#101828] px-5 mb-4" style={{ fontSize: 18 }}>设置到期提醒</p>
+            <div className="px-4 mb-4">
+              <p className="text-[#98A2B3] font-medium px-1 mb-2" style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: "0.04em" }}>提醒类型</p>
+              <div className="bg-[#F6F8FF] rounded-2xl overflow-hidden overflow-y-auto" style={{ border: "0.5px solid #E8ECF4", maxHeight: 180 }}>
+                {[
+                  { label: "保修到期", emoji: "🔧" }, { label: "合同到期", emoji: "📄" }, { label: "租期到期", emoji: "🏠" },
+                  { label: "尾款提醒", emoji: "💰" }, { label: "证书到期", emoji: "🎓" }, { label: "复诊提醒", emoji: "🏥" },
+                  { label: "疫苗接种", emoji: "💉" }, { label: "体检提醒", emoji: "🩺" }, { label: "年审提醒", emoji: "📋" },
+                  { label: "自定义", emoji: "✏️" },
+                ].map((t, i, arr) => {
+                  const isActive = reminderType === t.label
+                  return (
+                    <button key={t.label} className="ios-tap w-full flex items-center justify-between px-4 py-2" style={{ borderBottom: i < arr.length - 1 ? "0.5px solid #E8ECF4" : "none", background: isActive ? "#EEF4FF" : "transparent" }} onClick={() => { setReminderType(t.label); if (t.label !== "自定义") setCustomReminderName("") }}>
+                      <span style={{ fontSize: 14, fontWeight: isActive ? 600 : 400, color: isActive ? "#2563FF" : "#101828" }}>{t.emoji} {t.label}</span>
+                      {isActive && <Check size={14} strokeWidth={2.5} className="text-[#2563FF]" />}
+                    </button>
+                  )
+                })}
+              </div>
+              {reminderType === "自定义" && (
+                <input
+                  className="w-full mt-2 bg-white rounded-xl px-4 py-3 text-[#101828] outline-none"
+                  style={{ fontSize: 14, border: "0.5px solid #E8ECF4" }}
+                  placeholder="输入自定义提醒名称"
+                  value={customReminderName}
+                  onChange={(e) => setCustomReminderName(e.target.value)}
+                  autoFocus
+                />
+              )}
+            </div>
+            <div className="px-4 mb-4">
+              <p className="text-[#98A2B3] font-medium px-1 mb-2" style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: "0.04em" }}>到期日期</p>
+              <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
+                <div className="flex items-center px-4" style={{ height: 48 }}>
+                  <input type="date" className="flex-1 bg-transparent outline-none text-[#101828] text-right" style={{ fontSize: 15 }} value={reminderDate} onChange={(e) => setReminderDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+            <div className="px-4 mb-5">
+              <p className="text-[#98A2B3] font-medium px-1 mb-2" style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: "0.04em" }}>提前提醒</p>
+              <div className="flex gap-2">
+                {["当天", "1", "3", "7", "30"].map((d) => {
+                  const isActive = reminderAdvance === d
+                  return (
+                    <button key={d} className="ios-tap flex-1 py-2 rounded-lg font-medium" style={{ fontSize: 13, background: isActive ? "#2563FF" : "#F6F8FF", color: isActive ? "#FFFFFF" : "#98A2B3", border: isActive ? "none" : "0.5px solid #E8ECF4" }} onClick={() => setReminderAdvance(d)}>
+                      {d === "当天" ? "当天" : `${d} 天前`}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 px-4">
+              <button className="ios-tap w-full rounded-2xl font-semibold text-white" style={{ height: 50, fontSize: 17, background: "#2563FF" }} onClick={() => setShowReminderSheet(false)}>保存提醒</button>
+              {reminderDate && (
+                <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#FFF0F0", color: "#FF3B30" }} onClick={() => { setReminderDate(""); setReminderType("保修到期"); setReminderAdvance("7"); setCustomReminderName(""); setShowReminderSheet(false) }}>清除提醒</button>
+              )}
+              <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setShowReminderSheet(false)}>取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Photo source action sheet ── */}
+      {showPhotoSheet && (
+        <div className="absolute inset-0 z-50 flex items-end" onClick={() => setShowPhotoSheet(false)}>
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
+          <div className="relative w-full bg-white rounded-t-3xl pt-2 pb-8" style={{ boxShadow: "0 -4px 32px rgba(0,0,0,0.12)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 rounded-full bg-[#E5E5EA] mx-auto mb-5" />
+            <div className="flex flex-col gap-1.5 px-4">
+              <button className="ios-tap flex items-center gap-3 px-4 py-4 rounded-xl w-full" style={{ background: "#F6F8FF" }} onClick={() => { setShowPhotoSheet(false); setCameraBlocked(true) }} aria-label="拍照">
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, borderRadius: 10, background: "#EDFAF7" }}><Camera size={18} strokeWidth={2} style={{ color: "#14C8A8" }} /></div>
+                <span className="font-medium" style={{ fontSize: 16, color: "#101828" }}>📷 拍照</span>
+              </button>
+              <button className="ios-tap flex items-center gap-3 px-4 py-4 rounded-xl w-full" style={{ background: "#F6F8FF" }} onClick={() => setShowPhotoSheet(false)} aria-label="选取照片">
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, borderRadius: 10, background: "#EEF4FF" }}><ImageIcon size={18} strokeWidth={2} style={{ color: "#2563FF" }} /></div>
+                <span className="font-medium" style={{ fontSize: 16, color: "#101828" }}>🖼 选取照片</span>
+              </button>
+            </div>
+            <div className="px-4 mt-3">
+              <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "#F6F8FF", color: "#101828" }} onClick={() => setShowPhotoSheet(false)}>取消</button>
+            </div>
           </div>
         </div>
       )}

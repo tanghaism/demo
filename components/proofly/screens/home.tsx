@@ -9,6 +9,10 @@ import { SpaceSelectSheet } from "@/components/proofly/space-select-sheet"
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void
+  currentSpace: string
+  onSpaceChange: (space: string) => void
+  onViewAllRecords: () => void
+  onViewAllReminders: () => void
 }
 
 const recentRecords = [
@@ -39,11 +43,10 @@ const typeColors: Record<string, { bg: string; text: string }> = {
   "处方": { bg: "#FFF0F0", text: "#FF3B30" },
 }
 
-export function HomeScreen({ onNavigate }: HomeScreenProps) {
+export function HomeScreen({ onNavigate, currentSpace, onSpaceChange, onViewAllRecords, onViewAllReminders }: HomeScreenProps) {
   const [showSpaceSheet, setShowSpaceSheet] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showMoreSheet, setShowMoreSheet] = useState(false)
-  const [currentSpace, setCurrentSpace] = useState("家庭资料箱")
   const [searchQuery, setSearchQuery] = useState("")
 
   // Fuzzy filter across records, objects, reminders, and templates
@@ -363,7 +366,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
                   <Bell size={14} strokeWidth={2} style={{ color: "#FF9500" }} />
                   <p className="font-semibold text-[#101828]" style={{ fontSize: 15 }}>即将到期</p>
                 </div>
-                <button className="ios-tap text-[#2563FF] font-medium" style={{ fontSize: 13 }} onClick={() => onNavigate("reminders")}>全部</button>
+                <button className="ios-tap text-[#2563FF] font-medium" style={{ fontSize: 13 }} onClick={onViewAllReminders}>全部</button>
               </div>
               <div className="px-4">
                 <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
@@ -393,7 +396,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             <div className="mb-4">
               <div className="flex items-center justify-between px-4 mb-2">
                 <p className="font-semibold text-[#101828]" style={{ fontSize: 15 }}>最近记录</p>
-                <button className="ios-tap text-[#2563FF] font-medium" style={{ fontSize: 13 }} onClick={() => onNavigate("records")}>全部</button>
+                <button className="ios-tap text-[#2563FF] font-medium" style={{ fontSize: 13 }} onClick={onViewAllRecords}>全部</button>
               </div>
               <div className="px-4">
                 <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "0.5px solid #E8ECF4" }}>
@@ -474,7 +477,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       {showSpaceSheet && (
         <SpaceSelectSheet
           activeSpace={currentSpace}
-          onSelect={(space) => { setCurrentSpace(space.name); setShowSpaceSheet(false) }}
+          onSelect={(space) => { onSpaceChange(space.name); setShowSpaceSheet(false) }}
           onClose={() => setShowSpaceSheet(false)}
           onNewSpace={() => { setShowSpaceSheet(false); onNavigate("space-editor") }}
           onEditSpace={() => onNavigate("space-editor")}

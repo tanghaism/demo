@@ -17,6 +17,7 @@ import { ExportScreen } from "@/components/proofly/screens/export"
 import { ObjectDetail } from "@/components/proofly/screens/object-detail"
 import { TemplatesScreen } from "@/components/proofly/screens/templates"
 import { TemplateEditor } from "@/components/proofly/screens/template-editor"
+import { AddObject } from "@/components/proofly/screens/add-object"
 import { PendingScreen } from "@/components/proofly/screens/pending"
 
 const noop = () => {}
@@ -32,9 +33,7 @@ type Screen =
   | "reminders"
   | "settings"
   | "add-record"
-  | "add-record-write"
-  | "add-record-photo"
-  | "add-record-import"
+  | "add-object"
   | "record-detail"
   | "search"
   | "pro-upgrade"
@@ -76,11 +75,14 @@ function Showcase() {
           <SpaceEditor mode="create" onClose={noop} onSave={noop} onNavigate={noopNav} />
         </ShowcaseShell>
         <ShowcaseShell title="2. 首页 · Today">
-          <HomeScreen onNavigate={noopNav} />
-          <TabBar activeTab="home" onTabChange={noop} />
+          <HomeScreen onNavigate={noopNav} currentSpace="家庭资料箱" onSpaceChange={noop} onViewAllRecords={noop} onViewAllReminders={noop} />
+          <TabBar activeTab="home" onTabChange={noop} onAddRecord={noop} onAddObject={noop} />
         </ShowcaseShell>
         <ShowcaseShell title="3. 快速添加记录">
-          <AddRecord onClose={noop} onSave={noop} initialMode="write" />
+          <AddRecord onClose={noop} onSave={noop} />
+        </ShowcaseShell>
+        <ShowcaseShell title="3b. 添加对象">
+          <AddObject onClose={noop} onSave={noop} />
         </ShowcaseShell>
         <ShowcaseShell title="4. 记录列表">
           <RecordsList onSelectRecord={noop} onAddRecord={noop} onNavigate={noopNav} />
@@ -98,7 +100,7 @@ function Showcase() {
           <RemindersScreen onNavigate={noopNav} />
         </ShowcaseShell>
         <ShowcaseShell title="9. 导出资料包">
-          <ExportScreen onBack={noop} onNavigate={noopNav} />
+          <ExportScreen onBack={noop} onNavigate={noopNav} mode="object" />
         </ShowcaseShell>
         <ShowcaseShell title="10. 待整理">
           <PendingScreen onBack={noop} onSelectRecord={noop} />
@@ -124,6 +126,8 @@ export default function ProoflyApp() {
   const [showcase, setShowcase] = useState(true)
   const [currentScreen, setCurrentScreen] = useState<Screen>("no-space-empty")
   const [activeTab, setActiveTab] = useState<Tab>("home")
+  const [currentSpace, setCurrentSpace] = useState("家庭资料箱")
+  const [spaceFilter, setSpaceFilter] = useState<string | undefined>(undefined)
   const [searchFrom, setSearchFrom] = useState<Screen>("home")
   const [proFrom, setProFrom] = useState<Screen>("settings")
   const [exportFrom, setExportFrom] = useState<Screen>("settings")
@@ -131,6 +135,8 @@ export default function ProoflyApp() {
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
     setCurrentScreen(tabScreens[tab])
+    // Clear space filter when navigating from bottom tabs (cross-space view)
+    if (tab === "records" || tab === "reminders") setSpaceFilter(undefined)
   }
 
   const handleNavigate = (screen: string) => {
@@ -141,13 +147,7 @@ export default function ProoflyApp() {
     setCurrentScreen(s)
   }
 
-  const showTabBar = (["home", "records", "add-record", "add-record-write", "add-record-photo", "add-record-import", "reminders", "settings"] as Screen[]).includes(currentScreen)
-
-  const addRecordMode = (s: Screen): "write" | "photo" | "import" => {
-    if (s === "add-record-photo") return "photo"
-    if (s === "add-record-import") return "import"
-    return "write"
-  }
+  const showTabBar = (["home", "records", "add-record", "reminders", "settings"] as Screen[]).includes(currentScreen)
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -170,14 +170,18 @@ export default function ProoflyApp() {
           />
         )
       case "home":
-        return <HomeScreen onNavigate={handleNavigate} />
+        return (
+          <HomeScreen
+            onNavigate={handleNavigate}
+            currentSpace={currentSpace}
+            onSpaceChange={setCurrentSpace}
+            onViewAllRecords={() => { setSpaceFilter(currentSpace); setCurrentScreen("records") }}
+            onViewAllReminders={() => { setSpaceFilter(currentSpace); setCurrentScreen("reminders") }}
+          />
+        )
       case "add-record":
-      case "add-record-write":
-      case "add-record-photo":
-      case "add-record-import":
         return (
           <AddRecord
-            initialMode={addRecordMode(currentScreen)}
             onClose={() => setCurrentScreen(activeTab === "records" ? "records" : "home")}
             onSave={() => setCurrentScreen(activeTab === "records" ? "records" : "home")}
           />
@@ -188,6 +192,7 @@ export default function ProoflyApp() {
             onSelectRecord={() => setCurrentScreen("record-detail")}
             onAddRecord={() => setCurrentScreen("add-record")}
             onNavigate={handleNavigate}
+            spaceFilter={spaceFilter}
           />
         )
       case "pending":
@@ -202,6 +207,13 @@ export default function ProoflyApp() {
           <RecordDetail
             onBack={() => setCurrentScreen(activeTab === "home" ? "home" : "records")}
             onNavigate={handleNavigate}
+          />
+        )
+      case "add-object":
+        return (
+          <AddObject
+            onClose={() => setCurrentScreen(activeTab === "home" ? "home" : "records")}
+            onSave={() => { setCurrentScreen("object-detail") }}
           />
         )
       case "object-detail":
@@ -222,7 +234,7 @@ export default function ProoflyApp() {
           />
         )
       case "reminders":
-        return <RemindersScreen onNavigate={handleNavigate} />
+        return <RemindersScreen onNavigate={handleNavigate} spaceFilter={spaceFilter} />
       case "settings":
         return <SettingsScreen onNavigate={handleNavigate} />
       case "pro-upgrade":
@@ -255,7 +267,7 @@ export default function ProoflyApp() {
           />
         )
       default:
-        return <HomeScreen onNavigate={handleNavigate} />
+        return <HomeScreen onNavigate={handleNavigate} currentSpace={currentSpace} onSpaceChange={setCurrentSpace} onViewAllRecords={() => { setSpaceFilter(currentSpace); setCurrentScreen("records") }} onViewAllReminders={() => { setSpaceFilter(currentSpace); setCurrentScreen("reminders") }} />
     }
   }
 
@@ -287,7 +299,7 @@ export default function ProoflyApp() {
         <div className="relative h-full">
           {renderScreen()}
           {showTabBar && (
-            <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+            <TabBar activeTab={activeTab} onTabChange={handleTabChange} onAddRecord={() => { setCurrentScreen("add-record"); setActiveTab("add") }} onAddObject={() => { setCurrentScreen("add-object") }} />
           )}
         </div>
       </IPhoneShell>
