@@ -91,17 +91,17 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
   const visible = pendingItems.filter((item) => !dismissed.includes(item.id))
 
   const reasonColor: Record<PendingReason, string> = {
-    "缺少标题": "#2563FF",
+    "缺少标题": "#4C6FFF",
     "缺少类型": "#7C5CFF",
     "缺少标签": "#14C8A8",
     "缺少关联对象": "#FF9500",
-    "手动标记": "#98A2B3",
+    "手动标记": "var(--premium-text-subtle)",
   }
   const reasonBg: Record<PendingReason, string> = {
-    "缺少标题": "rgba(37,99,255,0.12)",
-    "缺少类型": "rgba(124,92,255,0.13)",
-    "缺少标签": "rgba(20,200,168,0.12)",
-    "缺少关联对象": "rgba(255,149,0,0.14)",
+    "缺少标题": "var(--premium-chip-blue-bg)",
+    "缺少类型": "var(--premium-icon-indigo-bg)",
+    "缺少标签": "var(--premium-success-bg)",
+    "缺少关联对象": "var(--premium-warning-bg)",
     "手动标记": "var(--premium-icon-neutral-bg)",
   }
 
@@ -259,8 +259,9 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                                 className="ios-tap px-3 py-2 rounded-xl font-medium"
                                 style={{
                                   fontSize: 13,
-                                  background: savedTypes[item.id] === t ? "#7C5CFF" : "#F0EBFF",
-                                  color: savedTypes[item.id] === t ? "white" : "#7C5CFF",
+                                  background: savedTypes[item.id] === t ? "var(--premium-icon-indigo-bg)" : "var(--premium-surface-soft)",
+                                  border: savedTypes[item.id] === t ? "0.5px solid rgba(124,92,255,0.28)" : "0.5px solid transparent",
+                                  color: "#7C5CFF",
                                 }}
                                 onClick={() => {
                                   setSavedTypes((s) => ({ ...s, [item.id]: t }))
@@ -293,8 +294,9 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
                                   className="ios-tap px-3 py-2 rounded-xl font-medium"
                                   style={{
                                     fontSize: 13,
-                                    background: selected ? "#14C8A8" : "#EDFAF7",
-                                    color: selected ? "white" : "#14C8A8",
+                                    background: selected ? "var(--premium-success-bg)" : "var(--premium-surface-soft)",
+                                    border: selected ? "0.5px solid var(--premium-success-border)" : "0.5px solid transparent",
+                                    color: "var(--premium-success-text)",
                                   }}
                                   onClick={() => {
                                     setSavedTags((s) => {

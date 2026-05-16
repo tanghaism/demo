@@ -15,9 +15,9 @@ interface ExportScreenProps {
 
 function ExportResultSheet({ onClose }: { onClose: () => void }) {
   return (
-    <div className="absolute inset-0 z-40 flex items-end" onClick={onClose}>
-      <div className="absolute inset-0" style={{ background: "var(--premium-overlay)" }} />
-      <div className="relative w-full rounded-t-3xl pt-2 pb-8" style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)" }} onClick={(e) => e.stopPropagation()}>
+    <div className="absolute inset-0 z-[80] flex items-end" onClick={onClose}>
+      <div className="absolute inset-0 premium-sheet-overlay" style={{ background: "var(--premium-overlay)" }} />
+      <div className="relative w-full rounded-t-3xl pt-2 pb-8 premium-sheet-panel" style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)" }} onClick={(e) => e.stopPropagation()}>
         <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "var(--premium-row-border)" }} />
         <div className="flex flex-col items-center text-center px-5 mb-5">
           <div className="flex items-center justify-center mb-3" style={{ width: 56, height: 56, borderRadius: 16, background: "var(--premium-success-bg)" }}>
@@ -29,7 +29,7 @@ function ExportResultSheet({ onClose }: { onClose: () => void }) {
           </p>
         </div>
         <div className="flex flex-col gap-2 px-4">
-          <button className="ios-tap w-full rounded-2xl font-semibold text-white" style={{ height: 50, fontSize: 17, background: "#2563FF" }} onClick={onClose}>分享资料包</button>
+          <button className="ios-tap premium-press w-full rounded-2xl font-semibold text-white" style={{ height: 50, fontSize: 17, background: "linear-gradient(135deg, #5B7CFF 0%, #7B61FF 100%)" }} onClick={onClose}>分享资料包</button>
           <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "var(--premium-surface-soft)", color: "var(--premium-text)" }} onClick={onClose}>完成</button>
         </div>
       </div>
@@ -60,7 +60,7 @@ export function ExportScreen({ onBack, onNavigate, mode = "object" }: ExportScre
           <span className="text-[#2563FF]" style={{ fontSize: 16 }}>返回</span>
         </button>
         <h1 className="font-semibold" style={{ fontSize: 17, color: "var(--premium-text)" }}>{title}</h1>
-        <button className="ios-tap px-2.5 py-1 rounded-lg font-medium" style={{ fontSize: 12, background: tier === "pro" ? "#EEF4FF" : "#F0EBFF", color: tier === "pro" ? "#2563FF" : "#7C5CFF" }} onClick={() => setTier(tier === "free" ? "pro" : "free")} aria-label="切换免费/Pro状态">
+        <button className="ios-tap px-2.5 py-1 rounded-lg font-medium" style={{ fontSize: 12, background: tier === "pro" ? "var(--premium-chip-blue-bg)" : "var(--premium-icon-indigo-bg)", color: tier === "pro" ? "#4C6FFF" : "#7C5CFF" }} onClick={() => setTier(tier === "free" ? "pro" : "free")} aria-label="切换免费/Pro状态">
           {tier === "free" ? "免费版" : "Pro"}
         </button>
       </div>
@@ -79,8 +79,8 @@ export function ExportScreen({ onBack, onNavigate, mode = "object" }: ExportScre
                 <p className="font-semibold" style={{ fontSize: 15, color: "var(--premium-text)" }}>{scopeInfo.label}</p>
                 <p style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{scopeInfo.sub}</p>
               </div>
-              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#2563FF" }}>
-                <Check size={11} strokeWidth={3} className="text-white" />
+              <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--premium-chip-blue-bg)", border: "1px solid rgba(76,111,255,0.28)" }}>
+                <Check size={11} strokeWidth={3} style={{ color: "#4C6FFF" }} />
               </div>
             </div>
           </PremiumCard>
@@ -145,9 +145,9 @@ export function ExportScreen({ onBack, onNavigate, mode = "object" }: ExportScre
 
       {/* Free preview sheet */}
       {showFreePreview && (
-        <div className="absolute inset-0 z-40 flex items-end" onClick={() => setShowFreePreview(false)}>
-          <div className="absolute inset-0" style={{ background: "var(--premium-overlay)" }} />
-          <div className="relative w-full rounded-t-3xl pt-2 pb-8" style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)" }} onClick={(e) => e.stopPropagation()}>
+        <div className="absolute inset-0 z-[80] flex items-end" onClick={() => setShowFreePreview(false)}>
+          <div className="absolute inset-0 premium-sheet-overlay" style={{ background: "var(--premium-overlay)" }} />
+          <div className="relative w-full rounded-t-3xl pt-2 pb-8 premium-sheet-panel" style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)" }} onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "var(--premium-row-border)" }} />
             <div className="flex flex-col items-center text-center px-5 mb-5">
               <div className="flex items-center justify-center mb-3" style={{ width: 48, height: 48, borderRadius: 14, background: "var(--premium-icon-blue-bg)" }}><Archive size={22} className="text-[#2563FF]" /></div>
@@ -163,7 +163,7 @@ export function ExportScreen({ onBack, onNavigate, mode = "object" }: ExportScre
               </div>
             </div>
             <div className="flex flex-col gap-2 px-4">
-              <button className="ios-tap w-full rounded-2xl font-semibold text-white" style={{ height: 50, fontSize: 17, background: "#7C5CFF" }} onClick={() => { setShowFreePreview(false); onNavigate("pro-upgrade") }}>升级 Pro 解锁导出</button>
+              <button className="ios-tap premium-press w-full rounded-2xl font-semibold text-white" style={{ height: 50, fontSize: 17, background: "linear-gradient(135deg, #5B7CFF 0%, #7B61FF 100%)" }} onClick={() => { setShowFreePreview(false); onNavigate("pro-upgrade") }}>升级 Pro 解锁导出</button>
               <button className="ios-tap w-full rounded-2xl font-semibold" style={{ height: 50, fontSize: 17, background: "var(--premium-surface-soft)", color: "var(--premium-text)" }} onClick={() => setShowFreePreview(false)}>关闭</button>
             </div>
           </div>

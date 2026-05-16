@@ -227,9 +227,9 @@ export function ObjectDetail({ onBack, onSelectRecord, onNavigate }: ObjectDetai
 
       {showMoreSheet && (
         <div className="absolute inset-0 z-[80]" onClick={() => setShowMoreSheet(false)}>
-          <div className="absolute inset-0" style={{ background: "var(--premium-overlay)" }} />
+          <div className="absolute inset-0 premium-sheet-overlay" style={{ background: "var(--premium-overlay)" }} />
           <div
-            className="absolute bottom-0 left-0 right-0 rounded-t-3xl pt-2 pb-10"
+            className="absolute bottom-0 left-0 right-0 rounded-t-3xl pt-2 pb-10 premium-sheet-panel"
             style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -239,14 +239,14 @@ export function ObjectDetail({ onBack, onSelectRecord, onNavigate }: ObjectDetai
                 icon={Pencil}
                 label="编辑对象"
                 color="#4C6FFF"
-                bg="#EEF4FF"
+                bg="var(--premium-chip-blue-bg)"
                 onPress={() => { setShowMoreSheet(false); onNavigate?.("add-object") }}
               />
               <ObjectActionItem
                 icon={Trash2}
                 label="删除对象"
-                color="#FF3B30"
-                bg="#FFF0F0"
+                color="var(--premium-danger-text)"
+                bg="var(--premium-danger-bg)"
                 danger
                 onPress={() => { setShowMoreSheet(false); setShowDeleteConfirm(true) }}
               />
@@ -267,9 +267,9 @@ export function ObjectDetail({ onBack, onSelectRecord, onNavigate }: ObjectDetai
 
       {showDeleteConfirm && (
         <div className="absolute inset-0 z-[80]" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="absolute inset-0" style={{ background: "var(--premium-overlay)" }} />
+          <div className="absolute inset-0 premium-sheet-overlay" style={{ background: "var(--premium-overlay)" }} />
           <div
-            className="absolute bottom-0 left-0 right-0 rounded-t-3xl pt-2 pb-10"
+            className="absolute bottom-0 left-0 right-0 rounded-t-3xl pt-2 pb-10 premium-sheet-panel"
             style={{ background: "var(--premium-surface)", boxShadow: "var(--premium-action-shadow)" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -281,7 +281,7 @@ export function ObjectDetail({ onBack, onSelectRecord, onNavigate }: ObjectDetai
               <p className="font-bold" style={{ fontSize: 18, color: "var(--premium-text)" }}>删除「MacBook Pro 14」？</p>
             </div>
             <div className="mx-4 flex items-start gap-3 px-4 py-3 rounded-xl mb-4" style={{ background: "var(--premium-danger-bg)", border: "0.5px solid var(--premium-danger-border)" }}>
-              <AlertCircle size={14} strokeWidth={2} className="text-[#FF3B30] mt-0.5 flex-shrink-0" />
+              <AlertCircle size={14} strokeWidth={2} className="mt-0.5 flex-shrink-0" style={{ color: "var(--premium-danger-text)" }} />
               <p className="leading-snug" style={{ fontSize: 13, color: "var(--premium-danger-text)" }}>删除对象后，已有记录不会被删除，但会取消与该对象的关联。</p>
             </div>
             <div className="flex flex-col gap-2 px-4">
@@ -334,7 +334,7 @@ function ObjectActionItem({
       <div className="flex items-center justify-center flex-shrink-0" style={{ width: 28, height: 28, borderRadius: 7, background: bg }}>
         <Icon size={14} strokeWidth={2} style={{ color }} />
       </div>
-      <span className="font-medium" style={{ fontSize: 16, color: danger ? color : "var(--premium-text)" }}>{label}</span>
+      <span className="font-medium" style={{ fontSize: 16, color: danger ? "var(--premium-danger-text)" : "var(--premium-text)" }}>{label}</span>
     </button>
   )
 }
