@@ -79,7 +79,7 @@ export function SpaceEditor({ mode, initialName = "", initialEmoji = "📦", ini
       <div className="relative z-10 flex items-center justify-between px-4 pt-2 pb-3">
         <button className="ios-tap px-2 flex items-center" style={{ minHeight: 44 }} onClick={onClose} aria-label="取消"><span className="text-[#2563FF] font-medium" style={{ fontSize: 17 }}>取消</span></button>
         <h1 className="font-semibold" style={{ fontSize: 17, color: "var(--premium-text)" }}>{mode === "create" ? "新建资料箱" : "编辑资料箱"}</h1>
-        <button className="ios-tap px-2 flex items-center" style={{ minHeight: 44 }} onClick={handleSave} aria-label="保存"><span className="font-semibold" style={{ fontSize: 17, color: spaceName.trim() ? "#2563FF" : "#C8D0E8" }}>保存</span></button>
+        <button className="ios-tap px-2 flex items-center" style={{ minHeight: 44 }} onClick={handleSave} aria-label="保存"><span className="font-semibold" style={{ fontSize: 17, color: spaceName.trim() ? "#2563FF" : "var(--premium-chevron)" }}>保存</span></button>
       </div>
       <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar pb-10">
         {/* Name & Icon */}

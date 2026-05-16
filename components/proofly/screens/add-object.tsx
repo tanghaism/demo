@@ -49,7 +49,7 @@ export function AddObject({ onClose, onSave }: AddObjectProps) {
         </button>
         <h1 className="font-semibold" style={{ fontSize: 17, color: "var(--premium-text)" }}>添加对象</h1>
         <button className="ios-tap px-2 flex items-center" style={{ minHeight: 44 }} onClick={handleSave} aria-label="保存">
-          <span className="font-semibold" style={{ fontSize: 17, color: name.trim() ? "#2563FF" : "#C8D0E8" }}>保存</span>
+          <span className="font-semibold" style={{ fontSize: 17, color: name.trim() ? "#2563FF" : "var(--premium-chevron)" }}>保存</span>
         </button>
       </div>
 
