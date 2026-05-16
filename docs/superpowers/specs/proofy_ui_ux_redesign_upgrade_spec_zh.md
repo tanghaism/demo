@@ -679,7 +679,7 @@ AI 提醒
 顶部使用：
 
 - 大图
-- 文件预览
+- 文件预览（首版支持 PDF、RTF、纯文本、CSV、Office / iWork 文档、图片 / HEIC / Live Photo，以及系统 AVFoundation / QuickTime 可播放的音频 / 视频文件）
 - 动态背景
 - 模糊玻璃层
 
@@ -1139,4 +1139,3 @@ Codex 在实现时必须遵守：
 感觉这是：
 
 > “一个真正属于 AI 时代的数字人生保险箱。”
-

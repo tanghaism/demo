@@ -709,15 +709,23 @@ export function TemplateEditor({
             <button
               className="ios-tap w-full flex items-center justify-center gap-2 rounded-xl py-3.5"
               style={{
-                border: "1px solid var(--premium-danger-border)",
-                background: "var(--premium-danger-bg)",
+                border: "none",
+                background: "var(--premium-danger-button-bg)",
+                boxShadow: "var(--premium-danger-button-shadow)",
               }}
               onClick={() => setShowDeleteConfirm(true)}
             >
-              <Trash2 size={16} strokeWidth={2} className="text-[#FF3B30]" />
+              <Trash2
+                size={16}
+                strokeWidth={2}
+                style={{ color: "var(--premium-danger-button-text)" }}
+              />
               <span
-                className="text-[#FF3B30] font-semibold"
-                style={{ fontSize: 15 }}
+                className="font-semibold"
+                style={{
+                  fontSize: 15,
+                  color: "var(--premium-danger-button-text)",
+                }}
               >
                 删除此模板
               </span>

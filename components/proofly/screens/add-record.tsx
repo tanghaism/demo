@@ -676,7 +676,8 @@ export function AddRecord({
                 className="mt-1.5 leading-snug"
                 style={{ fontSize: 14, color: "var(--premium-text-subtle)" }}
               >
-                请在 iPhone「设置」→「隐私与安全性」→「相机」中允许凭保访问相机
+                请在 iPhone「设置」→「隐私与安全性」→「相机」中允许 Proofly
+                访问相机
               </p>
             </div>
             <div className="flex flex-col gap-2 px-4">
@@ -1269,9 +1270,10 @@ export function AddRecord({
                   style={{
                     height: 50,
                     fontSize: 17,
-                    background: "var(--premium-danger-bg)",
-                    color: "var(--premium-danger-text)",
-                    border: "1px solid var(--premium-danger-border)",
+                    background: "var(--premium-danger-button-bg)",
+                    color: "var(--premium-danger-button-text)",
+                    border: "none",
+                    boxShadow: "var(--premium-danger-button-shadow)",
                   }}
                   onClick={() => {
                     setReminderDate("");

@@ -224,6 +224,9 @@ const CUSTOM_TEMPLATES_FROM_OTHER_SPACES = [
   },
 ];
 
+const getBuiltinTemplateIds = (type: string) =>
+  (BUILTIN_TEMPLATES[type] || []).map((template) => template.id);
+
 interface SpaceEditorProps {
   mode: "create" | "edit";
   initialName?: string;
@@ -247,7 +250,7 @@ export function SpaceEditor({
   const [selectedEmoji, setSelectedEmoji] = useState(initialEmoji);
   const [selectedType, setSelectedType] = useState(initialType);
   const [enabledTemplates, setEnabledTemplates] = useState<Set<string>>(
-    new Set(),
+    () => new Set(mode === "create" ? getBuiltinTemplateIds(initialType) : []),
   );
   const [enabledCustomTemplates, setEnabledCustomTemplates] = useState<
     Set<string>
@@ -255,6 +258,12 @@ export function SpaceEditor({
   const [showEmojiSheet, setShowEmojiSheet] = useState(false);
 
   const currentTemplates = BUILTIN_TEMPLATES[selectedType] || [];
+  const selectSpaceType = (typeId: string) => {
+    setSelectedType(typeId);
+    if (mode === "create") {
+      setEnabledTemplates(new Set(getBuiltinTemplateIds(typeId)));
+    }
+  };
   const toggleTemplate = (id: string) =>
     setEnabledTemplates((prev) => {
       const next = new Set(prev);
@@ -422,7 +431,7 @@ export function SpaceEditor({
                       ? "var(--premium-surface-selected)"
                       : "transparent",
                   }}
-                  onClick={() => !type.pro && setSelectedType(type.id)}
+                  onClick={() => !type.pro && selectSpaceType(type.id)}
                   aria-label={type.name}
                 >
                   <div

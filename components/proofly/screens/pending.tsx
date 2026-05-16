@@ -1,115 +1,112 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import {
-  ChevronLeft, Tag, Link2, AlignLeft, CheckSquare,
-  CheckCircle2, ChevronRight, X,
-} from "lucide-react"
-import { AmbientBackground } from "@/components/proofly/ambient-background"
-import { PremiumCard } from "@/components/proofly/premium-card"
+import { useMemo, useState } from "react";
+import { ChevronLeft, Check, CheckCircle2, ChevronRight } from "lucide-react";
+import { AmbientBackground } from "@/components/proofly/ambient-background";
+import { PremiumCard } from "@/components/proofly/premium-card";
 
 interface PendingScreenProps {
-  onBack: () => void
-  onSelectRecord: () => void
+  onBack: () => void;
+  onSelectRecord: () => void;
 }
 
-type PendingReason = "缺少标题" | "缺少类型" | "缺少标签" | "缺少关联对象" | "手动标记"
-
-interface PendingItem {
-  id: number
-  filename: string
-  type: "image" | "pdf"
-  size: string
-  reasons: PendingReason[]
-  date: string
+interface PendingRecord {
+  id: number;
+  emoji: string;
+  title: string;
+  type: string;
+  space: string;
+  date: string;
+  summary: string;
+  size: string;
 }
 
-const pendingItems: PendingItem[] = [
+const pendingRecords: PendingRecord[] = [
   {
     id: 1,
-    filename: "IMG_20260510.jpg",
-    type: "image",
-    size: "3.2 MB",
-    reasons: ["缺少标题", "缺少标签"],
+    emoji: "🧾",
+    title: "MacBook Pro 发票",
+    type: "发票",
+    space: "家庭资料箱",
     date: "2026-05-10",
+    summary: "缺少标题、缺少标签",
+    size: "3.2 MB",
   },
   {
     id: 2,
-    filename: "doc_scan_0509.pdf",
-    type: "pdf",
-    size: "1.8 MB",
-    reasons: ["缺少标题", "缺少关联对象"],
+    emoji: "📄",
+    title: "房屋租赁合同",
+    type: "合同",
+    space: "家庭资料箱",
     date: "2026-05-09",
+    summary: "缺少关联对象",
+    size: "1.8 MB",
   },
   {
     id: 3,
-    filename: "receipt_photo.jpg",
-    type: "image",
-    size: "2.1 MB",
-    reasons: ["缺少类型", "缺少标签"],
+    emoji: "🖼",
+    title: "receipt_photo.jpg",
+    type: "收据",
+    space: "经营资料箱",
     date: "2026-05-07",
+    summary: "缺少类型、缺少标签",
+    size: "2.1 MB",
   },
   {
     id: 4,
-    filename: "contract_draft.pdf",
-    type: "pdf",
-    size: "4.4 MB",
-    reasons: ["手动标记"],
+    emoji: "📎",
+    title: "contract_draft.pdf",
+    type: "PDF",
+    space: "事业资料箱",
     date: "2026-05-03",
+    summary: "手动标记待整理",
+    size: "4.4 MB",
   },
-]
-
-const TAG_OPTIONS = ["电子产品", "家居", "健康", "工作", "财务", "证件"]
-const OBJECT_OPTIONS = ["MacBook Pro 14", "徐汇租住房", "父亲健康档案", "林先生设计项目"]
-const TYPE_OPTIONS = ["发票", "合同", "收据", "处方", "保单", "证照", "证书", "体检报告"]
-
-type InlineEdit = "title" | "tag" | "object" | "type" | null
+];
 
 export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
-  const [expandedId, setExpandedId] = useState<number | null>(1)
-  const [dismissed, setDismissed] = useState<number[]>([])
-  // Per-item inline edit states
-  const [activeInline, setActiveInline] = useState<{ id: number; mode: InlineEdit } | null>(null)
-  const [titleInputs, setTitleInputs] = useState<Record<number, string>>({})
-  const [savedTitles, setSavedTitles] = useState<Record<number, string>>({})
-  const [savedTags, setSavedTags] = useState<Record<number, string[]>>({})
-  const [savedObjects, setSavedObjects] = useState<Record<number, string>>({})
-  const [savedTypes, setSavedTypes] = useState<Record<number, string>>({})
-  const [toast, setToast] = useState<string | null>(null)
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [dismissedIds, setDismissedIds] = useState<number[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const visible = useMemo(
+    () => pendingRecords.filter((record) => !dismissedIds.includes(record.id)),
+    [dismissedIds],
+  );
+
+  const selectedCount = selectedIds.length;
 
   const triggerToast = (msg: string) => {
-    setToast(msg)
-    setTimeout(() => setToast(null), 2000)
-  }
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
 
-  const markDone = (id: number) => {
-    setActiveInline(null)
-    triggerToast("已标记为整理完成")
-    setTimeout(() => setDismissed((d) => [...d, id]), 400)
-  }
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
 
-  const visible = pendingItems.filter((item) => !dismissed.includes(item.id))
+  const clearSelection = () => {
+    setSelectedIds([]);
+  };
 
-  const reasonColor: Record<PendingReason, string> = {
-    "缺少标题": "#4C6FFF",
-    "缺少类型": "#7C5CFF",
-    "缺少标签": "#14C8A8",
-    "缺少关联对象": "#FF9500",
-    "手动标记": "var(--premium-text-subtle)",
-  }
-  const reasonBg: Record<PendingReason, string> = {
-    "缺少标题": "var(--premium-chip-blue-bg)",
-    "缺少类型": "var(--premium-icon-indigo-bg)",
-    "缺少标签": "var(--premium-success-bg)",
-    "缺少关联对象": "var(--premium-warning-bg)",
-    "手动标记": "var(--premium-icon-neutral-bg)",
-  }
+  const ignorePending = (ids: number[]) => {
+    setDismissedIds((prev) => [...prev, ...ids]);
+    setSelectedIds([]);
+    setSelectionMode(false);
+    triggerToast("已忽略所选记录");
+  };
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden" style={{ paddingTop: 54 }}>
+    <div
+      className="relative flex flex-col h-full overflow-hidden"
+      style={{ paddingTop: 54 }}
+    >
       <AmbientBackground />
-      {/* Nav */}
-      <div className="relative z-10 flex items-center px-4 pt-2 pb-2.5">
+
+      <div className="relative z-10 flex items-center justify-between px-4 pt-2 pb-2.5">
         <button
           className="ios-tap flex items-center gap-1"
           style={{ minHeight: 44 }}
@@ -117,7 +114,9 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
           aria-label="返回记录"
         >
           <ChevronLeft size={20} className="text-[#2563FF]" />
-          <span className="text-[#2563FF]" style={{ fontSize: 16 }}>记录</span>
+          <span className="text-[#2563FF]" style={{ fontSize: 16 }}>
+            记录
+          </span>
         </button>
         <h1
           className="font-semibold absolute left-1/2 -translate-x-1/2"
@@ -125,364 +124,257 @@ export function PendingScreen({ onBack, onSelectRecord }: PendingScreenProps) {
         >
           待整理
         </h1>
+        <div className="flex items-center gap-2">
+          {selectionMode ? (
+            <button
+              className="ios-tap px-2 py-2"
+              onClick={() => {
+                setSelectionMode(false);
+                clearSelection();
+              }}
+              aria-label="取消选择"
+            >
+              <span
+                className="font-medium text-[#2563FF]"
+                style={{ fontSize: 16 }}
+              >
+                取消
+              </span>
+            </button>
+          ) : (
+            <button
+              className="ios-tap px-2 py-2"
+              onClick={() => setSelectionMode(true)}
+              aria-label="选择"
+            >
+              <span
+                className="font-medium text-[#2563FF]"
+                style={{ fontSize: 16 }}
+              >
+                选择
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Hint */}
       <div className="relative z-10 px-4 pt-3 pb-1">
-        <p className="leading-snug" style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>
-          这些记录可以晚点补充信息，不着急。
+        <p
+          className="leading-snug"
+          style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
+        >
+          这里的每条都是一条记录，点开可进入记录详情；忽略只会把它们从待整理列表里移除，不会删除记录本身。
         </p>
       </div>
 
-      {/* Count */}
-      <div className="relative z-10 px-4 py-2">
-        <p style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>{visible.length} 条待整理</p>
+      <div className="relative z-10 px-4 py-2 flex items-center justify-between">
+        <p style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}>
+          {visible.length} 条待整理
+        </p>
+        {selectionMode && selectedCount > 0 && (
+          <p style={{ fontSize: 13, color: "#4C6FFF" }}>
+            已选 {selectedCount} 条
+          </p>
+        )}
       </div>
 
       <div className="relative z-10 flex-1 overflow-y-auto hide-scrollbar px-4 pb-28">
         {visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center pt-16 gap-3">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "var(--premium-success-bg)" }}>
-              <CheckCircle2 size={32} className="text-[#14C8A8]" strokeWidth={1.5} />
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{ background: "var(--premium-success-bg)" }}
+            >
+              <CheckCircle2
+                size={32}
+                className="text-[#14C8A8]"
+                strokeWidth={1.5}
+              />
             </div>
-            <p className="font-semibold" style={{ fontSize: 17, color: "var(--premium-text)" }}>全部整理完毕</p>
-            <p className="text-center" style={{ fontSize: 14, color: "var(--premium-text-subtle)" }}>没有待整理的记录了</p>
+            <p
+              className="font-semibold"
+              style={{ fontSize: 17, color: "var(--premium-text)" }}
+            >
+              全部整理完毕
+            </p>
+            <p
+              className="text-center"
+              style={{ fontSize: 14, color: "var(--premium-text-subtle)" }}
+            >
+              没有待整理的记录了
+            </p>
           </div>
         ) : (
           <PremiumCard className="flex flex-col gap-0 rounded-[18px]">
             {visible.map((item, idx) => {
-              const isOpen = expandedId === item.id
-              const isInline = activeInline?.id === item.id
-              const currentMode = isInline ? activeInline.mode : null
+              const isSelected = selectedIds.includes(item.id);
 
               return (
-                <div
+                <button
                   key={item.id}
-                  style={{ borderBottom: idx < visible.length - 1 ? "0.5px solid var(--premium-row-border)" : "none" }}
+                  className="ios-tap premium-press w-full flex items-center px-4 py-3.5 text-left"
+                  style={{
+                    minHeight: 68,
+                    borderBottom:
+                      idx < visible.length - 1
+                        ? "0.5px solid var(--premium-row-border)"
+                        : "none",
+                    background: isSelected
+                      ? "var(--premium-surface-selected)"
+                      : "transparent",
+                  }}
+                  onClick={() => {
+                    if (selectionMode) {
+                      toggleSelect(item.id);
+                    } else {
+                      onSelectRecord();
+                    }
+                  }}
+                  aria-label={item.title}
                 >
-                  {/* Row header */}
-                  <button
-                    className="ios-tap w-full flex items-center px-4 py-3.5 text-left"
-                    style={{ minHeight: 56 }}
-                    onClick={() => {
-                      setExpandedId(isOpen ? null : item.id)
-                      setActiveInline(null)
-                    }}
-                    aria-label={item.filename}
-                  >
+                  {selectionMode ? (
+                    <div
+                      className="flex items-center justify-center flex-shrink-0 mr-3"
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: 8,
+                        background: isSelected
+                          ? "var(--premium-chip-blue-bg)"
+                          : "transparent",
+                        border: isSelected
+                          ? "1px solid rgba(76,111,255,0.28)"
+                          : "1.5px solid var(--premium-row-border)",
+                      }}
+                    >
+                      {isSelected && (
+                        <Check
+                          size={14}
+                          strokeWidth={3}
+                          style={{ color: "#4C6FFF" }}
+                        />
+                      )}
+                    </div>
+                  ) : (
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center mr-3 flex-shrink-0"
-                      style={{ background: item.type === "pdf" ? "var(--premium-danger-bg)" : "var(--premium-icon-blue-bg)" }}
+                      style={{
+                        background:
+                          item.type === "PDF"
+                            ? "var(--premium-danger-bg)"
+                            : "var(--premium-icon-blue-bg)",
+                      }}
                     >
-                      <span style={{ fontSize: 20 }}>{item.type === "pdf" ? "📄" : "🖼"}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate" style={{ fontSize: 14, color: "var(--premium-text)" }}>
-                        {savedTitles[item.id] || item.filename}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-1 mt-1">
-                        {item.reasons.map((r) => (
-                          savedTitles[item.id] && r === "缺少标题" ? null :
-                          savedTags[item.id]?.length && r === "缺少标签" ? null :
-                          savedObjects[item.id] && r === "缺少关联对象" ? null :
-                          savedTypes[item.id] && r === "缺少类型" ? null : (
-                            <span
-                              key={r}
-                              className="px-1.5 py-0.5 rounded font-medium"
-                              style={{ fontSize: 10, background: reasonBg[r], color: reasonColor[r] }}
-                            >
-                              {r}
-                            </span>
-                          )
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
-                      <span style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>{item.date}</span>
-                      <ChevronRight
-                        size={14}
-                        className="transition-transform"
-                        color="var(--premium-chevron)"
-                        style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-                      />
-                    </div>
-                  </button>
-
-                  {/* Expanded: quick actions + inline widgets */}
-                  {isOpen && (
-                    <div className="px-4 pb-4" style={{ borderTop: "0.5px solid var(--premium-row-border)" }}>
-
-                      {/* Title inline */}
-                      {currentMode === "title" ? (
-                        <div className="mt-3">
-                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>填写标题</p>
-                          <div className="flex items-center gap-2">
-                            <input
-                              className="flex-1 rounded-xl px-3 py-2.5 outline-none"
-                              style={{ fontSize: 15, border: "0.5px solid var(--premium-row-border)", background: "var(--premium-surface-soft)", color: "var(--premium-text)" }}
-                              placeholder="例如：MacBook Pro 发票"
-                              value={titleInputs[item.id] ?? ""}
-                              onChange={(e) => setTitleInputs((t) => ({ ...t, [item.id]: e.target.value }))}
-                              autoFocus
-                            />
-                            <button
-                              className="ios-tap px-3 py-2.5 rounded-xl font-semibold"
-                              style={{ fontSize: 14, background: "#2563FF", color: "white", flexShrink: 0 }}
-                              onClick={() => {
-                                if (titleInputs[item.id]?.trim()) {
-                                  setSavedTitles((s) => ({ ...s, [item.id]: titleInputs[item.id] }))
-                                  triggerToast("标题已保存")
-                                }
-                                setActiveInline(null)
-                              }}
-                              aria-label="保存标题"
-                            >
-                              保存
-                            </button>
-                            <button
-                              className="ios-tap w-8 h-8 rounded-lg flex items-center justify-center"
-                              style={{ background: "var(--premium-surface-soft)" }}
-                              onClick={() => setActiveInline(null)}
-                              aria-label="取消"
-                            >
-                              <X size={14} className="text-[#98A2B3]" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : currentMode === "type" ? (
-                        <div className="mt-3">
-                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>选择类型</p>
-                          <div className="flex flex-wrap gap-2">
-                            {TYPE_OPTIONS.map((t) => (
-                              <button
-                                key={t}
-                                className="ios-tap px-3 py-2 rounded-xl font-medium"
-                                style={{
-                                  fontSize: 13,
-                                  background: savedTypes[item.id] === t ? "var(--premium-icon-indigo-bg)" : "var(--premium-surface-soft)",
-                                  border: savedTypes[item.id] === t ? "0.5px solid rgba(124,92,255,0.28)" : "0.5px solid transparent",
-                                  color: "#7C5CFF",
-                                }}
-                                onClick={() => {
-                                  setSavedTypes((s) => ({ ...s, [item.id]: t }))
-                                  triggerToast(`类型已设为"${t}"`)
-                                  setActiveInline(null)
-                                }}
-                                aria-label={t}
-                              >
-                                {t}
-                              </button>
-                            ))}
-                          </div>
-                          <button
-                            className="ios-tap mt-2"
-                            style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
-                            onClick={() => setActiveInline(null)}
-                          >
-                            取消
-                          </button>
-                        </div>
-                      ) : currentMode === "tag" ? (
-                        <div className="mt-3">
-                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>选择标签（可多选）</p>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {TAG_OPTIONS.map((t) => {
-                              const selected = savedTags[item.id]?.includes(t)
-                              return (
-                                <button
-                                  key={t}
-                                  className="ios-tap px-3 py-2 rounded-xl font-medium"
-                                  style={{
-                                    fontSize: 13,
-                                    background: selected ? "var(--premium-success-bg)" : "var(--premium-surface-soft)",
-                                    border: selected ? "0.5px solid var(--premium-success-border)" : "0.5px solid transparent",
-                                    color: "var(--premium-success-text)",
-                                  }}
-                                  onClick={() => {
-                                    setSavedTags((s) => {
-                                      const current = s[item.id] ?? []
-                                      return {
-                                        ...s,
-                                        [item.id]: selected
-                                          ? current.filter((x) => x !== t)
-                                          : [...current, t],
-                                      }
-                                    })
-                                  }}
-                                  aria-label={t}
-                                >
-                                  {t}
-                                </button>
-                              )
-                            })}
-                          </div>
-                          <button
-                            className="ios-tap px-4 py-2 rounded-xl font-semibold"
-                            style={{ fontSize: 14, background: "#14C8A8", color: "white" }}
-                            onClick={() => {
-                              if ((savedTags[item.id]?.length ?? 0) > 0) {
-                                triggerToast("标签已保存")
-                              }
-                              setActiveInline(null)
-                            }}
-                            aria-label="完成"
-                          >
-                            完成
-                          </button>
-                        </div>
-                      ) : currentMode === "object" ? (
-                        <div className="mt-3">
-                          <p className="mb-1.5" style={{ fontSize: 12, color: "var(--premium-text-subtle)" }}>关联对象</p>
-                          <div className="rounded-xl overflow-hidden" style={{ border: "0.5px solid var(--premium-row-border)", background: "var(--premium-surface-soft)" }}>
-                            {OBJECT_OPTIONS.map((obj, i, arr) => (
-                              <button
-                                key={obj}
-                                className="ios-tap w-full flex items-center px-3 py-3 text-left"
-                                style={{ borderBottom: i < arr.length - 1 ? "0.5px solid var(--premium-row-border)" : "none" }}
-                                onClick={() => {
-                                  setSavedObjects((s) => ({ ...s, [item.id]: obj }))
-                                  triggerToast(`已关联"${obj}"`)
-                                  setActiveInline(null)
-                                }}
-                                aria-label={obj}
-                              >
-                                <span className="flex-1 font-medium" style={{ fontSize: 14, color: "var(--premium-text)" }}>{obj}</span>
-                                {savedObjects[item.id] === obj && (
-                                  <CheckCircle2 size={16} className="text-[#14C8A8]" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                          <button
-                            className="ios-tap mt-2"
-                            style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
-                            onClick={() => setActiveInline(null)}
-                          >
-                            取消
-                          </button>
-                        </div>
-                      ) : (() => {
-                        // Compute remaining unfilled reasons
-                        const remaining = item.reasons.filter((r) => {
-                          if (r === "缺少标题" && savedTitles[item.id]) return false
-                          if (r === "缺少类型" && savedTypes[item.id]) return false
-                          if (r === "缺少标签" && (savedTags[item.id]?.length ?? 0) > 0) return false
-                          if (r === "缺少关联对象" && savedObjects[item.id]) return false
-                          return true
-                        })
-                        const allFilled = remaining.length === 0
-
-                        return (
-                          <div className="flex flex-col gap-2 mt-3">
-                            {/* Quick action chips — only show for unfilled reasons */}
-                            {!allFilled && (
-                              <div className="flex flex-wrap gap-2">
-                                {remaining.map((reason) => {
-                                  if (reason === "缺少标题") return (
-                                    <button
-                                      key="title"
-                                      className="ios-tap flex items-center gap-1.5 px-3 py-2 rounded-xl"
-                                      style={{ background: reasonBg["缺少标题"], minHeight: 44 }}
-                                      onClick={() => setActiveInline({ id: item.id, mode: "title" })}
-                                      aria-label="补标题"
-                                    >
-                                      <AlignLeft size={14} strokeWidth={2} style={{ color: reasonColor["缺少标题"] }} />
-                                      <span className="font-medium" style={{ fontSize: 13, color: reasonColor["缺少标题"] }}>补标题</span>
-                                    </button>
-                                  )
-                                  if (reason === "缺少类型") return (
-                                    <button
-                                      key="type"
-                                      className="ios-tap flex items-center gap-1.5 px-3 py-2 rounded-xl"
-                                      style={{ background: reasonBg["缺少类型"], minHeight: 44 }}
-                                      onClick={() => setActiveInline({ id: item.id, mode: "type" })}
-                                      aria-label="选类型"
-                                    >
-                                      <Tag size={14} strokeWidth={2} style={{ color: reasonColor["缺少类型"] }} />
-                                      <span className="font-medium" style={{ fontSize: 13, color: reasonColor["缺少类型"] }}>选类型</span>
-                                    </button>
-                                  )
-                                  if (reason === "缺少标签") return (
-                                    <button
-                                      key="tag"
-                                      className="ios-tap flex items-center gap-1.5 px-3 py-2 rounded-xl"
-                                      style={{ background: reasonBg["缺少标签"], minHeight: 44 }}
-                                      onClick={() => setActiveInline({ id: item.id, mode: "tag" })}
-                                      aria-label="加标签"
-                                    >
-                                      <Tag size={14} strokeWidth={2} style={{ color: reasonColor["缺少标签"] }} />
-                                      <span className="font-medium" style={{ fontSize: 13, color: reasonColor["缺少标签"] }}>加标签</span>
-                                    </button>
-                                  )
-                                  if (reason === "缺少关联对象") return (
-                                    <button
-                                      key="object"
-                                      className="ios-tap flex items-center gap-1.5 px-3 py-2 rounded-xl"
-                                      style={{ background: reasonBg["缺少关联对象"], minHeight: 44 }}
-                                      onClick={() => setActiveInline({ id: item.id, mode: "object" })}
-                                      aria-label="关联对象"
-                                    >
-                                      <Link2 size={14} strokeWidth={2} style={{ color: reasonColor["缺少关联对象"] }} />
-                                      <span className="font-medium" style={{ fontSize: 13, color: reasonColor["缺少关联对象"] }}>关联对象</span>
-                                    </button>
-                                  )
-                                  return null
-                                })}
-                              </div>
-                            )}
-
-                            {/* Mark done — prominent when all filled, quiet link otherwise */}
-                            {allFilled ? (
-                              <button
-                                className="ios-tap w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
-                                style={{ background: "var(--premium-success-bg)", color: "var(--premium-success-text)", fontSize: 15 }}
-                                onClick={() => markDone(item.id)}
-                                aria-label="标记整理完成"
-                              >
-                                <CheckSquare size={16} strokeWidth={2.2} />
-                                标记整理完成
-                              </button>
-                            ) : (
-                              <button
-                                className="ios-tap py-2 rounded-xl text-center font-medium"
-                                style={{ fontSize: 13, color: "var(--premium-text-subtle)" }}
-                                onClick={() => markDone(item.id)}
-                                aria-label="跳过，标记已整理"
-                              >
-                                跳过，直接标为已整理
-                              </button>
-                            )}
-
-                            <button
-                              className="ios-tap w-full py-2.5 rounded-xl text-center font-medium"
-                              style={{ fontSize: 14, background: "var(--premium-surface-soft)", color: "var(--premium-text-muted)" }}
-                              onClick={onSelectRecord}
-                              aria-label="查看完整记录"
-                            >
-                              查看完整记录
-                            </button>
-                          </div>
-                        )
-                      })()}
+                      <span style={{ fontSize: 20 }}>{item.emoji}</span>
                     </div>
                   )}
-                </div>
-              )
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p
+                        className="font-medium leading-snug"
+                        style={{ fontSize: 15, color: "var(--premium-text)" }}
+                      >
+                        {item.title}
+                      </p>
+                      {!selectionMode && (
+                        <ChevronRight
+                          size={14}
+                          strokeWidth={2}
+                          className="flex-shrink-0 mt-0.5"
+                          style={{ color: "var(--premium-chevron)" }}
+                        />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span
+                        className="px-1.5 rounded font-medium"
+                        style={{
+                          fontSize: 10,
+                          background: "var(--premium-chip-blue-bg)",
+                          color: "#4C6FFF",
+                          paddingTop: 1,
+                          paddingBottom: 1,
+                        }}
+                      >
+                        {item.type}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "var(--premium-text-muted)",
+                        }}
+                      >
+                        {item.space}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "var(--premium-text-subtle)",
+                        }}
+                      >
+                        {item.date}
+                      </span>
+                    </div>
+                    <p
+                      className="mt-0.5"
+                      style={{
+                        fontSize: 11,
+                        color: "var(--premium-text-subtle)",
+                      }}
+                    >
+                      {item.summary} · {item.size}
+                    </p>
+                  </div>
+                </button>
+              );
             })}
           </PremiumCard>
         )}
       </div>
 
-      {/* Toast */}
+      {selectionMode && (
+        <div className="absolute bottom-8 left-4 right-4 z-50">
+          <button
+            className="ios-tap premium-press w-full rounded-2xl font-semibold"
+            style={{
+              height: 50,
+              fontSize: 16,
+              background:
+                selectedCount > 0
+                  ? "var(--premium-danger-button-bg)"
+                  : "var(--premium-surface-soft)",
+              color:
+                selectedCount > 0
+                  ? "var(--premium-danger-button-text)"
+                  : "var(--premium-text-subtle)",
+              border: "none",
+              boxShadow:
+                selectedCount > 0
+                  ? "var(--premium-danger-button-shadow)"
+                  : "var(--premium-action-shadow)",
+            }}
+            onClick={() => ignorePending(selectedIds)}
+            disabled={selectedCount === 0}
+          >
+            {selectedCount > 0 ? `忽略所选 ${selectedCount} 条` : "忽略"}
+          </button>
+        </div>
+      )}
+
       {toast && (
         <div
           className="absolute bottom-28 inset-x-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl"
-          style={{ background: "#101828", boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}
+          style={{
+            background: "#101828",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+          }}
         >
           <CheckCircle2 size={16} className="text-[#14C8A8] flex-shrink-0" />
-          <p className="text-white font-medium" style={{ fontSize: 14 }}>{toast}</p>
+          <p className="text-white font-medium" style={{ fontSize: 14 }}>
+            {toast}
+          </p>
         </div>
       )}
     </div>
-  )
+  );
 }

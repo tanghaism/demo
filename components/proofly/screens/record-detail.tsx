@@ -24,12 +24,23 @@ interface RecordDetailProps {
 }
 
 type AttachmentType = "image" | "pdf" | "video" | "live";
+type AttachmentKind =
+  | AttachmentType
+  | "text"
+  | "csv"
+  | "word"
+  | "excel"
+  | "powerpoint"
+  | "pages"
+  | "numbers"
+  | "keynote"
+  | "audio";
 
 interface Attachment {
   id: number;
   name: string;
   size: string;
-  type: AttachmentType;
+  type: AttachmentKind;
 }
 
 const initialAttachments: Attachment[] = [
@@ -37,6 +48,9 @@ const initialAttachments: Attachment[] = [
   { id: 2, name: "IMG_60512.jpg", size: "3.4 MB", type: "image" },
   { id: 3, name: "IMG_60511.MOV", size: "12.8 MB", type: "video" },
   { id: 4, name: "IMG_60420.HEIC", size: "2.8 MB", type: "live" },
+  { id: 5, name: "AppleCare_terms.docx", size: "186 KB", type: "word" },
+  { id: 6, name: "warranty_items.csv", size: "28 KB", type: "csv" },
+  { id: 7, name: "support_call.m4a", size: "1.6 MB", type: "audio" },
 ];
 
 type ToastState = { msg: string; variant: "success" | "error" } | null;
@@ -83,7 +97,7 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
   const activeAttachment =
     attachments.find((a) => a.id === activeAttachmentId) ?? null;
 
-  const thumbnailForType = (type: AttachmentType) => {
+  const thumbnailForType = (type: AttachmentKind) => {
     if (type === "pdf")
       return {
         bg: "var(--premium-danger-bg)",
@@ -112,6 +126,57 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
         ),
         badge: "实况",
         badgeColor: "#CC9500",
+      };
+    if (type === "audio")
+      return {
+        bg: "var(--premium-icon-mint-bg)",
+        icon: (
+          <span style={{ fontSize: 14, color: "#14C8A8", fontWeight: 700 }}>
+            ♪
+          </span>
+        ),
+        badge: "音频",
+        badgeColor: "#14C8A8",
+      };
+    if (type === "csv")
+      return {
+        bg: "var(--premium-icon-mint-bg)",
+        icon: (
+          <span style={{ fontSize: 11, color: "#14C8A8", fontWeight: 800 }}>
+            CSV
+          </span>
+        ),
+        badge: "CSV",
+        badgeColor: "#14C8A8",
+      };
+    if (["word", "pages", "text"].includes(type))
+      return {
+        bg: "var(--premium-icon-blue-bg)",
+        icon: <FileText size={18} className="text-[#4C6FFF]" />,
+        badge: type === "word" ? "Word" : type === "pages" ? "Pages" : "TXT",
+        badgeColor: "#4C6FFF",
+      };
+    if (["excel", "numbers"].includes(type))
+      return {
+        bg: "var(--premium-icon-mint-bg)",
+        icon: (
+          <span style={{ fontSize: 11, color: "#14C8A8", fontWeight: 800 }}>
+            XLS
+          </span>
+        ),
+        badge: type === "excel" ? "Excel" : "Numbers",
+        badgeColor: "#14C8A8",
+      };
+    if (["powerpoint", "keynote"].includes(type))
+      return {
+        bg: "var(--premium-icon-amber-bg)",
+        icon: (
+          <span style={{ fontSize: 11, color: "#FF9500", fontWeight: 800 }}>
+            PPT
+          </span>
+        ),
+        badge: type === "powerpoint" ? "PPT" : "Keynote",
+        badgeColor: "#FF9500",
       };
     return {
       bg: "var(--premium-icon-blue-bg)",
@@ -393,13 +458,23 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
                 return (
                   <div
                     key={a.id}
-                    className="flex items-center px-4 py-3.5"
+                    className="ios-tap premium-press w-full flex items-center px-4 py-3.5 text-left"
                     style={{
                       borderBottom:
                         i < attachments.length - 1
                           ? "0.5px solid var(--premium-row-border)"
                           : "none",
                     }}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => triggerToast("将使用 iOS 系统预览打开")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        triggerToast("将使用 iOS 系统预览打开");
+                      }
+                    }}
+                    aria-label={`用系统预览打开 ${a.name}`}
                   >
                     <div
                       className="rounded-xl flex items-center justify-center mr-3 flex-shrink-0"
@@ -433,6 +508,14 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
                         >
                           {a.size}
                         </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "var(--premium-text-subtle)",
+                          }}
+                        >
+                          轻点系统预览
+                        </span>
                       </div>
                     </div>
                     <button
@@ -442,7 +525,8 @@ export function RecordDetail({ onBack, onNavigate }: RecordDetailProps) {
                         height: 44,
                         background: "var(--premium-surface-soft)",
                       }}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setActiveAttachmentId(a.id);
                         setSheet("attachment-menu");
                       }}
@@ -815,19 +899,26 @@ function SheetItem({
       className="ios-tap flex items-center gap-3 px-4 py-4 rounded-xl w-full"
       style={{
         background: danger
-          ? "var(--premium-danger-bg)"
+          ? "var(--premium-danger-button-bg)"
           : "var(--premium-surface-soft)",
+        boxShadow: danger ? "var(--premium-danger-button-shadow)" : undefined,
         minHeight: 56,
       }}
       onClick={onPress}
       aria-label={label}
     >
-      <Icon size={17} strokeWidth={1.8} style={{ color }} />
+      <Icon
+        size={17}
+        strokeWidth={1.8}
+        style={{ color: danger ? "var(--premium-danger-button-text)" : color }}
+      />
       <span
         className="font-medium"
         style={{
           fontSize: 16,
-          color: danger ? "var(--premium-danger-text)" : "var(--premium-text)",
+          color: danger
+            ? "var(--premium-danger-button-text)"
+            : "var(--premium-text)",
         }}
       >
         {label}
